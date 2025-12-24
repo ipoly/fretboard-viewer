@@ -82,14 +82,14 @@ This implementation plan breaks down the guitar fretboard viewer into discrete c
     - **Property 4: Color Consistency**
     - **Validates: Requirements 3.6**
 
-- [ ] 4. User Interface Controls
-  - [ ] 4.1 Create KeySelector component
+- [x] 4. User Interface Controls
+  - [x] 4.1 Create KeySelector component
     - Implement dropdown/button group for all 12 keys
     - Connect to Zustand store for state updates
     - Add visual highlighting for selected key
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 4.2 Create DisplayToggle component
+  - [x] 4.2 Create DisplayToggle component
     - Implement toggle switch between notes and degrees
     - Connect to state management
     - Ensure immediate fretboard updates

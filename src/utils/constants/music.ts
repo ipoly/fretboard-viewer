@@ -12,11 +12,11 @@ export const CHROMATIC_NOTES: MusicalKey[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F
 
 // Color scheme for scale degrees
 export const SCALE_DEGREE_COLORS = {
-  1: '#FF6B6B', // Root - Red
-  2: '#4ECDC4', // Second - Teal
-  3: '#45B7D1', // Third - Blue
-  4: '#96CEB4', // Fourth - Green
-  5: '#FFEAA7', // Fifth - Yellow
-  6: '#DDA0DD', // Sixth - Purple
-  7: '#98D8C8', // Seventh - Mint
+  1: '#E74C3C', // Root - Red
+  2: '#F39C12', // Second - Orange
+  3: '#F1C40F', // Third - Yellow
+  4: '#27AE60', // Fourth - Green
+  5: '#3498DB', // Fifth - Blue
+  6: '#9B59B6', // Sixth - Purple
+  7: '#E91E63', // Seventh - Pink
 }

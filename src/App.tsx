@@ -2,6 +2,7 @@
 import { css } from '@emotion/react'
 import { useAppStore } from './stores/appStore'
 import { FretboardGrid } from './components/Fretboard'
+import { KeySelector, DisplayToggle, ScaleLegend } from './components/Controls'
 
 const appStyles = css`
   padding: 2rem;
@@ -14,6 +15,27 @@ const headerStyles = css`
   color: #333;
   margin-bottom: 2rem;
   text-align: center;
+`
+
+const controlsStyles = css`
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+`
+
+const legendStyles = css`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 `
 
 const fretboardContainer = css`
@@ -29,6 +51,16 @@ function App() {
   return (
     <div css={appStyles}>
       <h1 css={headerStyles}>Guitar Fretboard Viewer</h1>
+
+      <div css={controlsStyles}>
+        <KeySelector />
+        <DisplayToggle />
+      </div>
+
+      <div css={legendStyles}>
+        <ScaleLegend />
+      </div>
+
       <div css={fretboardContainer}>
         <FretboardGrid
           selectedKey={selectedKey}
