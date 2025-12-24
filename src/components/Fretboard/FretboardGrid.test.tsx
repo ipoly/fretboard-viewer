@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import * as fc from 'fast-check'
 import FretboardGrid from './FretboardGrid'
 import { MusicalKey, DisplayMode } from '../../types'
-import { testGenerators, propertyTestConfig, createPropertyTestTag } from '../../test/test-helpers'
+import { testGenerators, propertyTestConfig } from '../../test/test-helpers'
 import { calculateMajorScale, getScaleDegree } from '../../utils/music/scales'
 import { getFretboardPositions } from '../../utils/music/fretboard'
 
@@ -153,7 +153,7 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
           }
 
           // Verify that all instances of the same content display identically
-          for (const [contentKey, elements] of elementsByContent) {
+          for (const [, elements] of elementsByContent) {
             if (elements.length > 1) {
               const firstDisplayText = elements[0].textContent?.trim()
 
@@ -199,9 +199,6 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
 
           // Should have the same number of positions (same key, same fret count)
           expect(notesElements.length).toBe(degreesElements.length)
-
-          // Verify that the same positions are shown but with different display formats
-          const scaleInfo = calculateMajorScale(selectedKey)
 
           for (let i = 0; i < notesElements.length; i++) {
             const notesTitle = notesElements[i].getAttribute('title') || ''
@@ -269,7 +266,6 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
             if (match) {
               const noteName = match[1]
               const scaleDegree = parseInt(match[2])
-              const fretNumber = parseInt(match[3])
 
               // Verify the note is in the scale
               expect(scaleInfo.notes.includes(noteName)).toBe(true)

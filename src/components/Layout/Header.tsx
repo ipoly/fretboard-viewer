@@ -7,6 +7,17 @@ const headerStyles = css`
   border-bottom: 1px solid #e9ecef;
   padding: 1rem 2rem;
   margin-bottom: 2rem;
+
+  /* Responsive padding */
+  @media (max-width: 768px) {
+    padding: 1rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 `
 
 const titleStyles = css`
@@ -15,6 +26,17 @@ const titleStyles = css`
   text-align: center;
   font-size: 2rem;
   font-weight: 600;
+
+  /* Responsive font sizes */
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    margin: 0 0 1rem 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem 0;
+  }
 `
 
 const controlsContainerStyles = css`
@@ -58,6 +80,40 @@ export function Header() {
         </div>
         <ScaleLegend />
       </div>
+
+      {/* Skip link for keyboard users */}
+      <a
+        href="#main-content"
+        style={{
+          position: 'absolute',
+          left: '-10000px',
+          top: 'auto',
+          width: '1px',
+          height: '1px',
+          overflow: 'hidden'
+        }}
+        onFocus={(e) => {
+          e.target.style.position = 'static'
+          e.target.style.left = 'auto'
+          e.target.style.width = 'auto'
+          e.target.style.height = 'auto'
+          e.target.style.overflow = 'visible'
+          e.target.style.background = '#000'
+          e.target.style.color = '#fff'
+          e.target.style.padding = '8px'
+          e.target.style.textDecoration = 'none'
+          e.target.style.zIndex = '1000'
+        }}
+        onBlur={(e) => {
+          e.target.style.position = 'absolute'
+          e.target.style.left = '-10000px'
+          e.target.style.width = '1px'
+          e.target.style.height = '1px'
+          e.target.style.overflow = 'hidden'
+        }}
+      >
+        Skip to main content
+      </a>
     </header>
   )
 }

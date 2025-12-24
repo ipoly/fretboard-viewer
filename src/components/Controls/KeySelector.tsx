@@ -24,6 +24,18 @@ const buttonGroupStyles = css`
   padding: 8px;
   background: #f5f5f5;
   border-radius: 8px;
+  justify-content: center;
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 4px;
+    padding: 8px;
+  }
 `
 
 const keyButtonStyles = css`
@@ -38,6 +50,24 @@ const keyButtonStyles = css`
   min-width: 40px;
   text-align: center;
 
+  /* Touch-friendly sizing */
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
   &:hover {
     background: #e8f4f8;
     border-color: #45B7D1;
@@ -46,6 +76,14 @@ const keyButtonStyles = css`
   &:focus {
     outline: 2px solid #45B7D1;
     outline-offset: 2px;
+  }
+
+  /* Enhanced touch feedback */
+  @media (hover: none) {
+    &:active {
+      background: #d0e8f0;
+      transform: scale(0.95);
+    }
   }
 `
 
