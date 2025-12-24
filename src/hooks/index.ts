@@ -1,0 +1,1 @@
+export { usePWAUpdate } from './usePWAUpdate'
