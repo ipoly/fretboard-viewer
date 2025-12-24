@@ -1,7 +1,8 @@
 import { MusicalKey } from '../../types'
 
-// Standard guitar tuning (low to high)
-export const STANDARD_TUNING = ['E', 'A', 'D', 'G', 'B', 'E']
+// Standard guitar tuning (high to low for display purposes)
+// 1st string (thinnest) to 6th string (thickest)
+export const STANDARD_TUNING = ['E', 'B', 'G', 'D', 'A', 'E']
 
 // Major scale interval pattern (semitones)
 export const MAJOR_SCALE_INTERVALS = [2, 2, 1, 2, 2, 2, 1]
