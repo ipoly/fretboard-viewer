@@ -39,8 +39,8 @@ This implementation plan breaks down the guitar fretboard viewer into discrete c
   - Create basic test utilities and setup files
   - _Requirements: Testing Strategy_
 
-- [ ] 2. Music Theory Foundation
-  - [ ] 2.1 Implement core music theory utilities
+- [x] 2. Music Theory Foundation
+  - [x] 2.1 Implement core music theory utilities
     - Create chromatic scale and interval calculations
     - Implement major scale generation for all keys
     - Add note-to-scale-degree mapping functions
@@ -50,7 +50,7 @@ This implementation plan breaks down the guitar fretboard viewer into discrete c
     - **Property 3: Scale Theory Correctness**
     - **Validates: Requirements 4.2, 4.3, 4.4**
 
-  - [ ] 2.3 Implement guitar fretboard position calculations
+  - [x] 2.3 Implement guitar fretboard position calculations
     - Create fretboard note mapping for standard tuning
     - Calculate note positions for any fret/string combination
     - Handle enharmonic equivalents correctly
