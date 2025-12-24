@@ -13,9 +13,6 @@ describe('PWAUpdateNotification', () => {
   const mockSetOfflineReady = vi.fn()
   const mockSetNeedRefresh = vi.fn()
 
-  // Get the mocked useRegisterSW function
-  const mockUseRegisterSW = vi.fn()
-
   beforeEach(async () => {
     vi.clearAllMocks()
 
