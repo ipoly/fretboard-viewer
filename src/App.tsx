@@ -1,73 +1,31 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import { useAppStore } from './stores/appStore'
-import { FretboardGrid } from './components/Fretboard'
-import { KeySelector, DisplayToggle, ScaleLegend } from './components/Controls'
+import { Header, FretboardContainer, Footer } from './components/Layout'
 
 const appStyles = css`
-  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  background-color: #ffffff;
 `
 
-const headerStyles = css`
-  color: #333;
-  margin-bottom: 2rem;
-  text-align: center;
-`
-
-const controlsStyles = css`
+const mainContentStyles = css`
+  flex: 1;
   display: flex;
-  gap: 2rem;
-  justify-content: center;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-`
-
-const legendStyles = css`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-`
-
-const fretboardContainer = css`
-  margin: 2rem 0;
-  display: flex;
-  justify-content: center;
+  flex-direction: column;
 `
 
 function App() {
-  const { selectedKey, displayMode } = useAppStore()
-  const fretCount = 12 // Limit to 12 frets for better visibility
-
   return (
     <div css={appStyles}>
-      <h1 css={headerStyles}>Guitar Fretboard Viewer</h1>
-
-      <div css={controlsStyles}>
-        <KeySelector />
-        <DisplayToggle />
+      <Header />
+      <div css={mainContentStyles}>
+        <FretboardContainer />
       </div>
-
-      <div css={legendStyles}>
-        <ScaleLegend />
-      </div>
-
-      <div css={fretboardContainer}>
-        <FretboardGrid
-          selectedKey={selectedKey}
-          displayMode={displayMode}
-          fretCount={fretCount}
-        />
-      </div>
+      <Footer />
     </div>
   )
 }
