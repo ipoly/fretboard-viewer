@@ -36,7 +36,12 @@ describe('PWA Installation Functionality', () => {
       BUBBLING_PHASE: 3,
       CAPTURING_PHASE: 1,
       NONE: 0,
-    } as BeforeInstallPromptEvent
+      // Add missing Event properties
+      cancelBubble: false,
+      returnValue: true,
+      srcElement: window,
+      composedPath: vi.fn().mockReturnValue([]),
+    } as unknown as BeforeInstallPromptEvent
 
     // Mock window.addEventListener
     Object.defineProperty(window, 'addEventListener', {
@@ -74,9 +79,10 @@ describe('PWA Installation Functionality', () => {
       }
 
       const setupInstallationDetection = () => {
-        window.addEventListener('beforeinstallprompt', (event: BeforeInstallPromptEvent) => {
-          event.preventDefault()
-          installationState.deferredPrompt = event
+        window.addEventListener('beforeinstallprompt', (event: Event) => {
+          const beforeInstallEvent = event as BeforeInstallPromptEvent
+          beforeInstallEvent.preventDefault()
+          installationState.deferredPrompt = beforeInstallEvent
           installationState.canInstall = true
         })
       }
@@ -131,9 +137,10 @@ describe('PWA Installation Functionality', () => {
       const setupInstallationDetection = () => {
         // Check if beforeinstallprompt is supported
         if ('BeforeInstallPromptEvent' in window) {
-          window.addEventListener('beforeinstallprompt', (event: BeforeInstallPromptEvent) => {
-            event.preventDefault()
-            installationState.deferredPrompt = event
+          window.addEventListener('beforeinstallprompt', (event: Event) => {
+            const beforeInstallEvent = event as BeforeInstallPromptEvent
+            beforeInstallEvent.preventDefault()
+            installationState.deferredPrompt = beforeInstallEvent
             installationState.canInstall = true
           })
         } else {
@@ -280,15 +287,18 @@ describe('PWA Installation Functionality', () => {
     it('should clean up event listeners', () => {
       const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
+      const beforeInstallHandler = () => {}
+      const appInstalledHandler = () => {}
+
       const cleanup = () => {
-        window.removeEventListener('beforeinstallprompt', () => {})
-        window.removeEventListener('appinstalled', () => {})
+        window.removeEventListener('beforeinstallprompt', beforeInstallHandler)
+        window.removeEventListener('appinstalled', appInstalledHandler)
       }
 
       cleanup()
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('beforeinstallprompt', expect.any(Function))
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('appinstalled', expect.any(Function))
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('beforeinstallprompt', beforeInstallHandler)
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('appinstalled', appInstalledHandler)
     })
   })
 

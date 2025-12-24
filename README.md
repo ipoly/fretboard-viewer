@@ -31,8 +31,45 @@ Interactive guitar fretboard viewer for learning scales and music theory.
 
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
+- `pnpm build:prod` - Build for production with optimizations
+- `pnpm build:gh-pages` - Build for GitHub Pages deployment
 - `pnpm preview` - Preview production build
 - `pnpm lint` - Type check with TypeScript
+
+## Build Optimizations
+
+The production build includes several optimizations:
+
+- **Bundle Splitting**: Separate chunks for vendors (React, Emotion, Zustand) and music utilities
+- **Asset Optimization**: Inline small assets (<4KB), optimize chunk naming for caching
+- **Code Elimination**: Remove console logs and debugger statements in production
+- **Compression**: Enable CSS code splitting and esbuild minification
+- **Caching**: Optimized service worker caching strategies for different asset types
+- **PWA Enhancements**: Advanced caching with cleanup of outdated caches
+
+## Deployment
+
+### GitHub Pages
+
+The application is automatically deployed to GitHub Pages when changes are pushed to the main branch. The deployment workflow:
+
+1. Builds the application with the correct base URL
+2. Uploads the build artifacts to GitHub Pages
+3. Deploys the application with HTTPS support
+
+To manually deploy:
+1. Ensure your repository has GitHub Pages enabled
+2. Push changes to the main branch
+3. The GitHub Actions workflow will automatically build and deploy
+
+### Local Testing for GitHub Pages
+
+To test the GitHub Pages build locally:
+
+```bash
+pnpm run build:gh-pages
+pnpm preview
+```
 
 ## Project Structure
 
