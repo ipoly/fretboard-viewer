@@ -52,8 +52,13 @@ function getColorForScaleDegree(degree: number): string {
 /**
  * Calculate the horizontal position of a note on the fretboard
  * Notes are positioned between frets (fret 1 is between fret 0 and fret 1)
+ * Open strings (fret 0) are positioned at the left edge with some spacing
  */
 function calculateNotePosition(fret: number, fretWidth: number): number {
+  if (fret === 0) {
+    // Position open string notes with some spacing from the left edge
+    return -40 // Moved closer to the fretboard, was -60
+  }
   // Position notes in the middle of each fret space
   return (fret - 0.5) * fretWidth
 }

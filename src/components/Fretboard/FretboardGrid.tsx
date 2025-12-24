@@ -1,8 +1,9 @@
 import React from 'react'
 import { css } from '@emotion/react'
-import { MusicalKey, DisplayMode } from '../../types'
+import { MusicalKey, DisplayMode, FretPosition } from '../../types'
 import { getFretboardPositions } from '../../utils/music/fretboard'
 import { STANDARD_TUNING } from '../../utils/constants/music'
+import { calculateMajorScale, getScaleDegree } from '../../utils/music/scales'
 import NotePosition from './NotePosition'
 
 interface FretboardGridProps {
@@ -81,21 +82,6 @@ const fretNumber = css`
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 `
 
-const stringLabel = css`
-  position: absolute;
-  left: -60px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #ffffff;
-  width: 40px;
-  text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 6px;
-  padding: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-`
-
 const FretboardGrid: React.FC<FretboardGridProps> = ({
   selectedKey,
   displayMode,
@@ -104,9 +90,27 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   // Get all fret positions for the selected key
   const fretPositions = getFretboardPositions(selectedKey, fretCount)
 
+  // Calculate the major scale for the selected key
+  const scaleInfo = calculateMajorScale(selectedKey)
+
   // Calculate fret positions (each fret is 80px wide)
   const fretWidth = 80
   const fretPositions_px = Array.from({ length: fretCount + 1 }, (_, i) => i * fretWidth)
+
+  // Helper function to create FretPosition for open strings
+  const getOpenStringPosition = (stringIndex: number, openNote: string): FretPosition | null => {
+    const degree = getScaleDegree(openNote, scaleInfo)
+    if (degree) {
+      return {
+        string: stringIndex,
+        fret: 0,
+        note: openNote,
+        scaleDegree: degree,
+        isInScale: true
+      }
+    }
+    return null
+  }
 
   return (
     <div css={fretboardStyles}>
@@ -138,12 +142,19 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
           // Different string thicknesses (1st string thinnest, 6th string thickest)
           const stringThickness = stringIndex === 0 ? 2 : stringIndex === 1 ? 2.5 : stringIndex === 2 ? 3 : stringIndex === 3 ? 3.5 : stringIndex === 4 ? 4 : 4.5;
 
+          const openStringPosition = getOpenStringPosition(stringIndex, openNote)
+
           return (
             <div key={stringIndex} css={stringContainer}>
-              {/* String label */}
-              <div css={stringLabel}>
-                {openNote}
-              </div>
+              {/* Open string note (if in scale) */}
+              {openStringPosition && (
+                <NotePosition
+                  key={`${stringIndex}-0`}
+                  position={openStringPosition}
+                  displayMode={displayMode}
+                  fretWidth={fretWidth}
+                />
+              )}
 
               {/* String line with variable thickness */}
               <div
