@@ -28,7 +28,6 @@ const fretboardStyles = css`
 
 const fretboardContainer = css`
   position: relative;
-  min-width: 1040px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -45,7 +44,7 @@ const stringContainer = css`
 const stringLine = css`
   position: absolute;
   left: 0;
-  right: 0;
+  width: 100%;
   height: 3px;
   background: linear-gradient(to right, #E0E0E0, #C0C0C0, #E0E0E0);
   border-radius: 1.5px;
@@ -95,6 +94,7 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
 
   // Calculate fret positions (each fret is 80px wide)
   const fretWidth = 80
+  const totalWidth = (fretCount + 1) * fretWidth // 计算总宽度，包括所有品格
   const fretPositions_px = Array.from({ length: fretCount + 1 }, (_, i) => i * fretWidth)
 
   // Helper function to create FretPosition for open strings
@@ -114,7 +114,7 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
 
   return (
     <div css={fretboardStyles}>
-      <div css={fretboardContainer}>
+      <div css={fretboardContainer} style={{ width: `${totalWidth}px` }}>
         {/* Fret number markers */}
         <div css={fretNumberContainer}>
           {Array.from({ length: fretCount + 1 }, (_, fret) => (
@@ -156,11 +156,12 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
                 />
               )}
 
-              {/* String line with variable thickness */}
+              {/* String line with variable thickness and full width */}
               <div
                 css={stringLine}
                 style={{
                   height: `${stringThickness}px`,
+                  width: `${totalWidth}px`,
                   background: stringIndex < 3
                     ? 'linear-gradient(to right, #F0F0F0, #D0D0D0, #F0F0F0)' // Plain steel strings (high strings)
                     : 'linear-gradient(to right, #CD853F, #8B4513, #CD853F)'  // Wound strings (low strings)
