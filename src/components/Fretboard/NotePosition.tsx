@@ -29,11 +29,63 @@ const noteCircle = css`
   transform: translate(-50%, -50%);
   z-index: 10;
 
-  &:hover {
-    transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    border-color: rgba(255, 255, 255, 0.7);
-    font-size: 20px;
+  /* Keyboard focus styles */
+  &:focus {
+    outline: 3px solid #FFD700;
+    outline-offset: 2px;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  /* Touch-friendly sizing for tablets and mobile */
+  @media (max-width: 1024px) {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    border-width: 2px;
+  }
+
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    border-width: 2px;
+  }
+
+  /* Enhanced touch interactions */
+  @media (hover: hover) {
+    &:hover {
+      transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 255, 255, 0.7);
+      font-size: 20px;
+
+      @media (max-width: 1024px) {
+        font-size: 18px;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 16px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 14px;
+      }
+    }
+  }
+
+  /* Touch feedback for devices without hover */
+  @media (hover: none) {
+    &:active {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 255, 255, 0.7);
+    }
   }
 
   &:active {
@@ -87,7 +139,16 @@ const NotePosition: React.FC<NotePositionProps> = ({
         left: `${leftPosition}px`,
         top: '50%'
       }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) on fret ${fret}`}
       title={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) - Fret ${fret}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          // Could add audio playback or other interaction here
+        }
+      }}
     >
       {displayText}
     </div>

@@ -10,6 +10,10 @@ const appStyles = css`
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   background-color: #ffffff;
+
+  /* Ensure proper viewport handling */
+  width: 100%;
+  overflow-x: hidden;
 `
 
 const mainContentStyles = css`

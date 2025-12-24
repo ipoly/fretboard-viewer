@@ -22,6 +22,16 @@ const legendItemsStyles = css`
   gap: 6px;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `
 
 const legendItemStyles = css`
@@ -45,6 +55,19 @@ const legendCircleStyles = css`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  /* Touch-friendly sizing */
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
 `
 
 const legendLabelStyles = css`
@@ -61,26 +84,27 @@ export const ScaleLegend: React.FC = () => {
   const scaleInfo = calculateMajorScale(selectedKey)
 
   return (
-    <div css={legendStyles}>
-      <div css={legendTitleStyles}>
-        {selectedKey} Major
+    <div css={legendStyles} role="region" aria-labelledby="legend-title">
+      <div css={legendTitleStyles} id="legend-title">
+        {selectedKey} Major Scale
       </div>
 
-      <div css={legendItemsStyles}>
+      <div css={legendItemsStyles} role="list" aria-label="Scale degrees and notes">
         {scaleInfo.degrees.map((degree, index) => {
           const note = scaleInfo.notes[index]
           const color = SCALE_DEGREE_COLORS[degree as keyof typeof SCALE_DEGREE_COLORS]
           const displayText = displayMode === 'notes' ? note : degree.toString()
 
           return (
-            <div key={degree} css={legendItemStyles}>
+            <div key={degree} css={legendItemStyles} role="listitem">
               <div
                 css={legendCircleStyles}
                 style={{ backgroundColor: color }}
+                aria-label={`${displayMode === 'notes' ? note : `Degree ${degree}`} (${color})`}
               >
                 {displayText}
               </div>
-              <div css={legendLabelStyles}>
+              <div css={legendLabelStyles} aria-hidden="true">
                 {displayMode === 'notes' ? `${degree}` : note}
               </div>
             </div>

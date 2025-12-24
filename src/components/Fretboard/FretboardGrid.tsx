@@ -21,7 +21,53 @@ const fretboardStyles = css`
   background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%);
   border: 2px solid #654321;
   border-radius: 8px;
-  padding: 60px 60px 40px 80px; /* 减少左侧padding，去掉琴头空间 */
+  padding: 60px 60px 40px 80px;
+
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    height: 400px;
+    padding: 50px 40px 30px 60px;
+  }
+
+  @media (max-width: 768px) {
+    height: 350px;
+    padding: 40px 20px 20px 40px;
+    border-radius: 6px;
+  }
+
+  @media (max-width: 480px) {
+    height: 300px;
+    padding: 30px 15px 15px 30px;
+    border-radius: 4px;
+  }
+
+  /* Touch-friendly scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  /* Enhanced scrollbar for touch devices */
+  &::-webkit-scrollbar {
+    height: 12px;
+
+    @media (max-width: 768px) {
+      height: 8px;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  }
 `
 
 
@@ -79,6 +125,19 @@ const fretNumber = css`
   width: 80px;
   transform: translateX(-50%);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+
+  /* Responsive font sizes */
+  @media (max-width: 1024px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
 `
 
 const FretboardGrid: React.FC<FretboardGridProps> = ({
@@ -97,6 +156,43 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   const totalWidth = (fretCount + 1) * fretWidth // 计算总宽度，包括所有品格
   const fretPositions_px = Array.from({ length: fretCount + 1 }, (_, i) => i * fretWidth)
 
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault()
+        // Scroll left
+        if (e.currentTarget instanceof HTMLElement) {
+          e.currentTarget.scrollLeft = Math.max(0, e.currentTarget.scrollLeft - fretWidth)
+        }
+        break
+      case 'ArrowRight':
+        e.preventDefault()
+        // Scroll right
+        if (e.currentTarget instanceof HTMLElement) {
+          e.currentTarget.scrollLeft = Math.min(
+            e.currentTarget.scrollWidth - e.currentTarget.clientWidth,
+            e.currentTarget.scrollLeft + fretWidth
+          )
+        }
+        break
+      case 'Home':
+        e.preventDefault()
+        // Scroll to beginning
+        if (e.currentTarget instanceof HTMLElement) {
+          e.currentTarget.scrollLeft = 0
+        }
+        break
+      case 'End':
+        e.preventDefault()
+        // Scroll to end
+        if (e.currentTarget instanceof HTMLElement) {
+          e.currentTarget.scrollLeft = e.currentTarget.scrollWidth - e.currentTarget.clientWidth
+        }
+        break
+    }
+  }
+
   // Helper function to create FretPosition for open strings
   const getOpenStringPosition = (stringIndex: number, openNote: string): FretPosition | null => {
     const degree = getScaleDegree(openNote, scaleInfo)
@@ -113,15 +209,24 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   }
 
   return (
-    <div css={fretboardStyles}>
+    <div
+      css={fretboardStyles}
+      role="application"
+      aria-label={`Guitar fretboard showing ${selectedKey} major scale in ${displayMode} mode`}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-describedby="fretboard-instructions"
+    >
       <div css={fretboardContainer} style={{ width: `${totalWidth}px` }}>
         {/* Fret number markers */}
-        <div css={fretNumberContainer}>
+        <div css={fretNumberContainer} role="row" aria-label="Fret numbers">
           {Array.from({ length: fretCount + 1 }, (_, fret) => (
             <div
               key={fret}
               css={fretNumber}
               style={{ left: `${fret * fretWidth}px` }}
+              role="columnheader"
+              aria-label={`Fret ${fret}`}
             >
               {fret}
             </div>
@@ -134,6 +239,8 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
             key={fret}
             css={fretLine}
             style={{ left: `${position}px` }}
+            role="presentation"
+            aria-hidden="true"
           />
         ))}
 
@@ -145,7 +252,12 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
           const openStringPosition = getOpenStringPosition(stringIndex, openNote)
 
           return (
-            <div key={stringIndex} css={stringContainer}>
+            <div
+              key={stringIndex}
+              css={stringContainer}
+              role="row"
+              aria-label={`String ${6 - stringIndex} (${openNote})`}
+            >
               {/* Open string note (if in scale) */}
               {openStringPosition && (
                 <NotePosition
@@ -166,6 +278,8 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
                     ? 'linear-gradient(to right, #F0F0F0, #D0D0D0, #F0F0F0)' // Plain steel strings (high strings)
                     : 'linear-gradient(to right, #CD853F, #8B4513, #CD853F)'  // Wound strings (low strings)
                 }}
+                role="presentation"
+                aria-hidden="true"
               />
 
               {/* Note positions on this string */}
@@ -182,6 +296,22 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
             </div>
           )
         })}
+      </div>
+
+      {/* Screen reader instructions */}
+      <div
+        id="fretboard-instructions"
+        className="sr-only"
+        style={{
+          position: 'absolute',
+          left: '-10000px',
+          width: '1px',
+          height: '1px',
+          overflow: 'hidden'
+        }}
+      >
+        Use arrow keys to scroll the fretboard. Press Home to go to the beginning, End to go to the end.
+        Tab through note positions to hear their details.
       </div>
     </div>
   )

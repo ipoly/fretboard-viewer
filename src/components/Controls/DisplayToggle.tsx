@@ -37,9 +37,29 @@ const toggleButtonStyles = css`
   position: relative;
   z-index: 2;
 
+  /* Touch-friendly sizing */
+  @media (max-width: 768px) {
+    padding: 14px 20px;
+    font-size: 16px;
+    min-height: 48px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 18px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
   &:focus {
     outline: 2px solid #45B7D1;
     outline-offset: 2px;
+  }
+
+  /* Enhanced touch feedback */
+  @media (hover: none) {
+    &:active {
+      transform: scale(0.95);
+    }
   }
 `
 

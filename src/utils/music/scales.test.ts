@@ -8,7 +8,7 @@ import {
   getChromaticScale
 } from './scales'
 import { normalizeNoteName } from './fretboard'
-import { musicalKeyArbitrary, scaleDegreeArbitrary, propertyTestConfig } from '../../test/generators'
+import { musicalKeyArbitrary, propertyTestConfig } from '../../test/generators'
 import { CHROMATIC_NOTES, MAJOR_SCALE_INTERVALS } from '../constants/music'
 import { MusicalKey } from '../../types'
 
