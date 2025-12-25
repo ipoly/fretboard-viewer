@@ -53,12 +53,13 @@ const createValidatedStorage = () => {
     logger.warn('localStorage is not available, falling back to in-memory storage only')
   }
 
-  const baseStorage = createJSONStorage(() => localStorage)
+  // Create base storage once, only if localStorage is available
+  const baseStorage = isStorageAvailable ? createJSONStorage(() => localStorage) : null
 
   return {
     getItem: async (name: string) => {
       // If localStorage is not available, return null to use defaults
-      if (!isStorageAvailable) {
+      if (!isStorageAvailable || !baseStorage) {
         logger.debug('localStorage unavailable, using default settings')
         return null
       }
@@ -84,11 +85,14 @@ const createValidatedStorage = () => {
             logger.warn('Some settings were invalid and replaced with defaults', {
               original: originalState,
               validated: validatedState,
-              invalidKey: hasInvalidKey,
-              invalidMode: hasInvalidMode
+              issues: { invalidKey: hasInvalidKey, invalidMode: hasInvalidMode }
             })
           } else {
-            logger.debug('Settings loaded and validated successfully', validatedState)
+            logger.debug('Settings loaded and validated successfully', {
+              settings: validatedState,
+              version: 1,
+              age: Date.now() - (originalState.timestamp || 0)
+            })
           }
 
           return {
@@ -104,7 +108,10 @@ const createValidatedStorage = () => {
       } catch (error) {
         // Handle JSON parsing errors and other localStorage failures
         if (error instanceof SyntaxError) {
-          logger.error('localStorage data is corrupted (JSON parse error), clearing and using defaults', { error })
+          logger.error('localStorage data is corrupted (JSON parse error), clearing and using defaults', {
+            error: error.message,
+            fallback: 'using default settings'
+          })
         } else {
           logger.error('Failed to load settings from localStorage, using defaults', { error })
         }
@@ -113,7 +120,7 @@ const createValidatedStorage = () => {
         try {
           if (isStorageAvailable) {
             localStorage.removeItem(name)
-            logger.debug('Corrupted settings data cleared from localStorage')
+            logger.log('Settings cleared from localStorage')
           }
         } catch (clearError) {
           logger.error('Failed to clear corrupted settings data', { clearError })
@@ -125,32 +132,32 @@ const createValidatedStorage = () => {
 
     setItem: async (name: string, value: any) => {
       // If localStorage is not available, silently skip saving
-      if (!isStorageAvailable) {
+      if (!isStorageAvailable || !baseStorage) {
         logger.debug('localStorage unavailable, skipping save operation')
         return
       }
 
       try {
         await baseStorage.setItem(name, value)
-        logger.debug('Settings saved successfully to localStorage')
+        logger.log('Settings saved successfully to localStorage')
       } catch (error) {
         // Handle quota exceeded and other storage errors
         if (error instanceof Error) {
           if (error.name === 'QuotaExceededError') {
             logger.error('localStorage quota exceeded, unable to save settings', {
-              error,
-              fallback: 'continuing with in-memory state'
+              error: error.message,
+              fallback: 'continuing with current in-memory state'
             })
           } else {
             logger.error('Failed to save settings to localStorage', {
-              error,
-              fallback: 'continuing with in-memory state'
+              error: error.message,
+              fallback: 'continuing with current in-memory state'
             })
           }
         } else {
           logger.error('Unknown error saving settings to localStorage', {
-            error,
-            fallback: 'continuing with in-memory state'
+            error: String(error),
+            fallback: 'continuing with current in-memory state'
           })
         }
         // Don't throw - let the application continue with in-memory state
@@ -158,16 +165,19 @@ const createValidatedStorage = () => {
     },
 
     removeItem: async (name: string) => {
-      if (!isStorageAvailable) {
+      if (!isStorageAvailable || !baseStorage) {
         logger.debug('localStorage unavailable, skipping remove operation')
         return
       }
 
       try {
         await baseStorage.removeItem(name)
-        logger.debug('Settings removed successfully from localStorage')
+        logger.log('Settings cleared from localStorage')
       } catch (error) {
-        logger.error('Failed to remove settings from localStorage', { error })
+        logger.error('Failed to clear settings from localStorage', {
+          error: error instanceof Error ? error.message : String(error),
+          impact: 'corrupted data may persist'
+        })
         // Don't throw - this is not critical
       }
     },

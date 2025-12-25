@@ -22,7 +22,7 @@ describe('PWAUpdateNotification', () => {
     const mockUseRegisterSW = vi.mocked(useRegisterSW)
 
     // Default mock implementation - no notifications shown
-    mockUseRegisterSW.mockImplementation((options) => {
+    mockUseRegisterSW.mockImplementation((_options) => {
       return {
         offlineReady: [false, mockSetOfflineReady],
         needRefresh: [false, mockSetNeedRefresh],

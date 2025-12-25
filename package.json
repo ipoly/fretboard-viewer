@@ -10,10 +10,17 @@
     "build:prod": "NODE_ENV=production tsc && vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest --run",
+    "test": "npm run lint && vitest --run",
+    "test:watch": "vitest",
+    "test:run": "npm run lint && vitest --run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "typecheck": "tsc --noEmit",
+    "ci": "npm run typecheck && npm run test:run && npm run build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "vitest related --run --reporter=verbose"
   },
   "keywords": [
     "guitar",
@@ -37,7 +44,9 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
     "fast-check": "^4.5.2",
+    "husky": "^9.1.7",
     "jsdom": "^27.3.0",
+    "lint-staged": "^16.2.7",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
     "vite-plugin-pwa": "^1.2.0",
