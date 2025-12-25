@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { FretboardGrid } from '../Fretboard'
+import { ScaleLegend } from '../Controls'
 import { useAppStore } from '../../stores/appStore'
 
 const containerStyles = css`
@@ -67,6 +68,21 @@ const fretboardWrapperStyles = css`
   }
 `
 
+const legendWrapperStyles = css`
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 0.75rem;
+  }
+`
+
 export function FretboardContainer() {
   const { selectedKey, displayMode } = useAppStore()
   const fretCount = 24 // Full fretboard as per requirements
@@ -79,6 +95,9 @@ export function FretboardContainer() {
           displayMode={displayMode}
           fretCount={fretCount}
         />
+      </div>
+      <div css={legendWrapperStyles}>
+        <ScaleLegend />
       </div>
     </main>
   )

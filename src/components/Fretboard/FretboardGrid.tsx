@@ -21,23 +21,23 @@ const fretboardStyles = css`
   background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%);
   border: 2px solid #654321;
   border-radius: 8px;
-  padding: 60px 60px 40px 80px;
+  padding: var(--top-padding) var(--right-padding-desktop) var(--bottom-padding-desktop) var(--left-padding);
 
   /* Responsive adjustments */
   @media (max-width: 1024px) {
     height: 400px;
-    padding: 50px 40px 30px 60px;
+    padding: var(--top-padding) var(--right-padding-tablet) var(--bottom-padding-tablet) var(--left-padding);
   }
 
   @media (max-width: 768px) {
     height: 350px;
-    padding: 40px 20px 20px 40px;
+    padding: var(--top-padding) var(--right-padding-mobile) var(--bottom-padding-mobile) var(--left-padding);
     border-radius: 6px;
   }
 
   @media (max-width: 480px) {
     height: 300px;
-    padding: 30px 15px 15px 30px;
+    padding: var(--top-padding) var(--right-padding-phone) var(--bottom-padding-phone) var(--left-padding);
     border-radius: 4px;
   }
 
@@ -99,8 +99,8 @@ const stringLine = css`
 
 const fretLine = css`
   position: absolute;
-  top: -20px;
-  bottom: -20px;
+  top: 0;
+  bottom: 0;
   width: 3px;
   background: linear-gradient(to bottom, #FFD700, #FFA500, #FFD700);
   box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
@@ -109,11 +109,12 @@ const fretLine = css`
 
 const fretNumberContainer = css`
   position: absolute;
-  top: -50px; /* 向上移动更多，避免与音符重叠 */
+  top: calc(-1 * var(--top-padding)); /* 使用动态顶部边距 */
   left: 0;
   right: 0;
-  height: 30px;
+  height: var(--top-padding); /* 高度等于顶部边距 */
   display: flex;
+  align-items: center; /* 垂直居中 */
 `
 
 const fretNumber = css`
@@ -122,7 +123,7 @@ const fretNumber = css`
   font-weight: bold;
   color: #ffffff;
   text-align: center;
-  width: 80px;
+  width: var(--fret-width);
   transform: translateX(-50%);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 
@@ -155,6 +156,26 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   const fretWidth = 80
   const totalWidth = (fretCount + 1) * fretWidth // 计算总宽度，包括所有品格
   const fretPositions_px = Array.from({ length: fretCount + 1 }, (_, i) => i * fretWidth)
+
+  // Use fret width as the base unit for consistent spacing
+  const leftPadding = fretWidth // 左边距等于一个品格的宽度，确保空弦音符居中对齐
+  const stringSpacing = 50 // 弦间距高度
+  const topPadding = stringSpacing // 顶部边距等于弦间距，确保品格数字与弦上音符对齐
+
+  // Calculate responsive paddings based on base units
+  const rightPadding = {
+    desktop: fretWidth * 0.75,    // 60px (0.75 * 80)
+    tablet: fretWidth * 0.5,     // 40px (0.5 * 80)
+    mobile: fretWidth * 0.25,    // 20px (0.25 * 80)
+    phone: fretWidth * 0.1875    // 15px (0.1875 * 80)
+  }
+
+  const bottomPadding = {
+    desktop: stringSpacing * 0.8,  // 40px (0.8 * 50)
+    tablet: stringSpacing * 0.6,   // 30px (0.6 * 50)
+    mobile: stringSpacing * 0.4,   // 20px (0.4 * 50)
+    phone: stringSpacing * 0.3     // 15px (0.3 * 50)
+  }
 
   // Keyboard navigation handler
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -211,6 +232,19 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   return (
     <div
       css={fretboardStyles}
+      style={{
+        '--left-padding': `${leftPadding}px`,
+        '--top-padding': `${topPadding}px`,
+        '--fret-width': `${fretWidth}px`,
+        '--right-padding-desktop': `${rightPadding.desktop}px`,
+        '--right-padding-tablet': `${rightPadding.tablet}px`,
+        '--right-padding-mobile': `${rightPadding.mobile}px`,
+        '--right-padding-phone': `${rightPadding.phone}px`,
+        '--bottom-padding-desktop': `${bottomPadding.desktop}px`,
+        '--bottom-padding-tablet': `${bottomPadding.tablet}px`,
+        '--bottom-padding-mobile': `${bottomPadding.mobile}px`,
+        '--bottom-padding-phone': `${bottomPadding.phone}px`
+      } as React.CSSProperties}
       role="application"
       aria-label={`Guitar fretboard showing ${selectedKey} major scale in ${displayMode} mode`}
       tabIndex={0}
@@ -276,7 +310,17 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
                   width: `${totalWidth}px`,
                   background: stringIndex < 3
                     ? 'linear-gradient(to right, #F0F0F0, #D0D0D0, #F0F0F0)' // Plain steel strings (high strings)
-                    : 'linear-gradient(to right, #CD853F, #8B4513, #CD853F)'  // Wound strings (low strings)
+                    : `repeating-linear-gradient(
+                        75deg,
+                        #A0826D 0px,
+                        #E8E8E8 0.8px,
+                        #F0F0F0 1.6px,
+                        #E8E8E8 2.4px,
+                        #A0826D 3.2px
+                      )`, // Wound strings with brown base and light spiral winding texture (low strings)
+                  boxShadow: stringIndex >= 3
+                    ? '0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                    : '0 2px 4px rgba(0, 0, 0, 0.3)'
                 }}
                 role="presentation"
                 aria-hidden="true"

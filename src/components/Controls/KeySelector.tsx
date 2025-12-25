@@ -26,8 +26,14 @@ const buttonGroupStyles = css`
   border-radius: 8px;
   justify-content: center;
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
+  /* iPad specific - reduce button size to fit in one row */
+  @media (min-width: 768px) and (max-width: 1200px) {
+    gap: 2px;
+    padding: 6px 4px;
+  }
+
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 767px) {
     gap: 6px;
     padding: 10px;
   }
@@ -50,8 +56,19 @@ const keyButtonStyles = css`
   min-width: 40px;
   text-align: center;
 
-  /* Touch-friendly sizing */
-  @media (max-width: 768px) {
+  /* iPad specific - smaller buttons to fit in one row */
+  @media (min-width: 768px) and (max-width: 1200px) {
+    padding: 8px 6px;
+    font-size: 13px;
+    min-width: 32px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Touch-friendly sizing for phones */
+  @media (max-width: 767px) {
     padding: 12px 16px;
     font-size: 16px;
     min-width: 44px;

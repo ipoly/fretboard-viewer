@@ -16,12 +16,14 @@ Interactive guitar fretboard viewer for learning scales and music theory.
 
 ## ✨ Features
 
-- Interactive guitar fretboard visualization
-- Key selection for different musical keys
-- Toggle between note names and scale degrees
-- Responsive design for desktop and tablet
-- Progressive Web App capabilities
-- Offline functionality
+- **Interactive Fretboard**: Full 24-fret guitar fretboard visualization with realistic string appearance
+- **Wound String Texture**: Authentic spiral winding texture for low strings (4th, 5th, 6th strings)
+- **Musical Key Selection**: Choose from all 12 chromatic keys
+- **Display Modes**: Toggle between note names and scale degrees
+- **Responsive Design**: Optimized for desktop, tablet (iPad), and mobile devices
+- **Touch-Friendly**: Keyboard navigation and touch-optimized controls
+- **Progressive Web App**: Install on any device for offline use
+- **Accessibility**: Full keyboard navigation and screen reader support
 
 ## 📱 PWA Installation
 
