@@ -36,7 +36,7 @@ export function usePWAUpdate(): PWAUpdateState & PWAUpdateActions {
       }))
 
       // Simulate checking for updates
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && navigator.serviceWorker) {
         const registration = await navigator.serviceWorker.getRegistration()
         if (registration) {
           await registration.update()
@@ -45,6 +45,7 @@ export function usePWAUpdate(): PWAUpdateState & PWAUpdateActions {
     } catch (error) {
       setState(prev => ({
         ...prev,
+        lastUpdateCheck: new Date(),
         updateError: error instanceof Error ? error.message : 'Failed to check for updates',
       }))
     }
@@ -98,7 +99,7 @@ export function usePWAUpdate(): PWAUpdateState & PWAUpdateActions {
 
   // Listen for service worker updates
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && navigator.serviceWorker) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         setState(prev => ({ ...prev, isOfflineReady: true }))
       })

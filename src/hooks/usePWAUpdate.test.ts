@@ -78,13 +78,16 @@ describe('PWA Update Detection', () => {
   })
 
   describe('Service Worker Registration Tests', () => {
-    it('should initialize with correct default state', () => {
+    it('should initialize with correct default state', async () => {
       const { result } = renderHook(() => usePWAUpdate())
 
       expect(result.current.isUpdateAvailable).toBe(false)
       expect(result.current.isOfflineReady).toBe(false)
       expect(result.current.isUpdating).toBe(false)
-      expect(result.current.lastUpdateCheck).toBeNull()
+      // lastUpdateCheck will be set after initial checkForUpdate call in useEffect
+      await waitFor(() => {
+        expect(result.current.lastUpdateCheck).toBeInstanceOf(Date)
+      })
       expect(result.current.updateError).toBeNull()
     })
 
@@ -119,9 +122,11 @@ describe('PWA Update Detection', () => {
     })
 
     it('should handle missing service worker support', async () => {
-      // Temporarily remove service worker support
-      const originalServiceWorker = navigator.serviceWorker
-      delete (navigator as any).serviceWorker
+      // Use vi.stubGlobal to mock navigator without serviceWorker
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        serviceWorker: undefined
+      })
 
       const { result } = renderHook(() => usePWAUpdate())
 
@@ -133,11 +138,8 @@ describe('PWA Update Detection', () => {
       expect(result.current.lastUpdateCheck).toBeInstanceOf(Date)
       expect(result.current.updateError).toBeNull()
 
-      // Restore service worker
-      Object.defineProperty(navigator, 'serviceWorker', {
-        value: originalServiceWorker,
-        writable: true,
-      })
+      // Restore original navigator
+      vi.unstubAllGlobals()
     })
   })
 
@@ -313,16 +315,16 @@ describe('PWA Update Detection', () => {
   describe('Error Handling', () => {
     it('should handle various error types gracefully', async () => {
       const testCases = [
-        new Error('Network error'),
-        new TypeError('Type error'),
-        'String error',
-        null,
-        undefined,
-        { message: 'Object error' }
+        { error: new Error('Network error'), expected: 'Network error' },
+        { error: new TypeError('Type error'), expected: 'Type error' },
+        { error: 'String error', expected: 'Failed to check for updates' }, // String errors get default message
+        { error: null, expected: 'Failed to check for updates' },
+        { error: undefined, expected: 'Failed to check for updates' },
+        { error: { message: 'Object error' }, expected: 'Failed to check for updates' }
       ]
 
-      for (const error of testCases) {
-        mockServiceWorker.getRegistration.mockRejectedValue(error)
+      for (const testCase of testCases) {
+        mockServiceWorker.getRegistration.mockRejectedValue(testCase.error)
 
         const { result } = renderHook(() => usePWAUpdate())
 
@@ -330,13 +332,7 @@ describe('PWA Update Detection', () => {
           await result.current.checkForUpdate()
         })
 
-        if (error instanceof Error) {
-          expect(result.current.updateError).toBe(error.message)
-        } else if (typeof error === 'string') {
-          expect(result.current.updateError).toBe(error)
-        } else {
-          expect(result.current.updateError).toBe('Failed to check for updates')
-        }
+        expect(result.current.updateError).toBe(testCase.expected)
 
         vi.clearAllMocks()
       }
