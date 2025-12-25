@@ -47,73 +47,11 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Exclude source maps from caching in production
         globIgnores: ['**/*.map'],
-        // Cache all static assets
-        maximumFileSizeToCacheInBytes: 5000000, // 5MB
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              }
-            }
-          },
-          {
-            // Cache application assets with network-first strategy
-            urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              }
-            }
-          },
-          {
-            // Cache static assets with cache-first strategy
-            urlPattern: ({ request }) =>
-              request.destination === 'script' ||
-              request.destination === 'style' ||
-              request.destination === 'image',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-assets-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
-          }
-        ],
-        // Clean up old caches
+        maximumFileSizeToCacheInBytes: 5000000,
         cleanupOutdatedCaches: true,
-        // Skip waiting for new service worker
         skipWaiting: true,
-        // Claim clients immediately
-        clientsClaim: true,
-        // Force update on manifest changes
-        navigateFallback: null,
-        // Include manifest in precache
-        additionalManifestEntries: [
-          { url: '/manifest.webmanifest', revision: null }
-        ]
+        clientsClaim: true
       },
       devOptions: {
         enabled: true
