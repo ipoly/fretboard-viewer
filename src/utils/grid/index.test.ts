@@ -24,9 +24,9 @@ describe('Grid Coordinate Mapping', () => {
   });
 
   it('should map fret number to grid column correctly', () => {
-    expect(fretToGridColumn(0)).toBe(2); // Open string notes -> column 2
-    expect(fretToGridColumn(1)).toBe(3); // 1st fret -> column 3
-    expect(fretToGridColumn(12)).toBe(14); // 12th fret -> column 14
+    expect(fretToGridColumn(1)).toBe(2); // 1st fret -> column 2
+    expect(fretToGridColumn(2)).toBe(3); // 2nd fret -> column 3
+    expect(fretToGridColumn(12)).toBe(13); // 12th fret -> column 13
   });
 
   it('should have open string column as 1', () => {
@@ -47,7 +47,7 @@ describe('Grid Dimensions', () => {
 describe('Grid Positions', () => {
   it('should get fret line position correctly', () => {
     const position = getFretLinePosition(5);
-    expect(position.column).toBe(7); // 5th fret -> column 7
+    expect(position.column).toBe(6); // 5th fret -> column 6
     expect(position.row).toBe(1); // Will span all rows
     expect(position.layer).toBe(GridLayers.FRET_LINES);
   });
@@ -68,7 +68,7 @@ describe('Grid Positions', () => {
 
   it('should get note marker position correctly', () => {
     const position = getNoteMarkerPosition(3, 7);
-    expect(position.column).toBe(9); // 7th fret -> column 9
+    expect(position.column).toBe(8); // 7th fret -> column 8
     expect(position.row).toBe(4); // 4th string -> row 4
     expect(position.layer).toBe(GridLayers.NOTE_MARKERS);
   });
@@ -133,7 +133,7 @@ describe('FretboardGridManager', () => {
 
     const frettedElement = manager.fretPositionToGridElement(frettedNote);
     expect(frettedElement.type).toBe('note-marker');
-    expect(frettedElement.position.column).toBe(7); // 5th fret -> column 7
+    expect(frettedElement.position.column).toBe(6); // 5th fret -> column 6
     expect(frettedElement.position.row).toBe(3); // 3rd string -> row 3
 
     // Open string note

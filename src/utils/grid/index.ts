@@ -52,11 +52,11 @@ export function stringToGridRow(stringIndex: number): number {
  * Convert fret number to grid column position
  * 品格号到网格列的映射
  *
- * @param fretNumber - 0-based fret number (0 = open string)
+ * @param fretNumber - 1-based fret number (1 = first fret, 2 = second fret, etc.)
  * @returns 1-based grid column position
  */
 export function fretToGridColumn(fretNumber: number): number {
-  return fretNumber + 2; // +1 for 1-based, +1 for open string column
+  return fretNumber + 1; // +1 because open string occupies column 1
 }
 
 /**

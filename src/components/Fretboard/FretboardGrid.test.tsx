@@ -250,8 +250,8 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
             />
           )
 
-          // Get all note position elements (look for elements with background color styles)
-          const noteElements = container.querySelectorAll('[style*="background"]')
+          // Get all note position elements (look for elements with CSS variables)
+          const noteElements = container.querySelectorAll('[style*="--note-color"]')
 
           // Should have at least as many elements as expected positions
           // (might have more due to open strings)
@@ -333,12 +333,12 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
           // Verify that all instances of the same scale degree use identical colors
           for (const [_scaleDegree, elements] of elementsByDegree) {
             if (elements.length > 1) {
-              // Use inline style backgroundColor instead of getComputedStyle for performance
-              const firstElementStyle = elements[0].style.backgroundColor
+              // Use CSS variable --note-color instead of backgroundColor
+              const firstElementColor = (elements[0] as HTMLElement).style.getPropertyValue('--note-color')
 
               for (let i = 1; i < elements.length; i++) {
-                const currentElementStyle = elements[i].style.backgroundColor
-                expect(currentElementStyle).toBe(firstElementStyle)
+                const currentElementColor = (elements[i] as HTMLElement).style.getPropertyValue('--note-color')
+                expect(currentElementColor).toBe(firstElementColor)
               }
             }
           }
@@ -366,7 +366,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     )
 
     // Should find note elements by their content (note names like C, D, E, etc.)
-    const noteElements = container.querySelectorAll('[style*="background"]')
+    const noteElements = container.querySelectorAll('[style*="--note-color"]')
     expect(noteElements.length).toBeGreaterThan(0)
 
     // Verify some expected notes are present in the DOM
@@ -383,7 +383,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     )
 
     // Should find degree elements by their content (numbers like 1, 2, 3, etc.)
-    const degreeElements = container.querySelectorAll('[style*="background"]')
+    const degreeElements = container.querySelectorAll('[style*="--note-color"]')
     expect(degreeElements.length).toBeGreaterThan(0)
 
     // Verify some expected degrees are present in the DOM

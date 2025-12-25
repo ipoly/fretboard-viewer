@@ -152,15 +152,15 @@ export class FretboardGridManager {
       case 'fret-line':
         return {
           ...baseStyles,
+          gridColumn: element.position.column, // Use the calculated column position
           gridRow: '1 / -1', // Span all rows
-          '--fret-column': element.position.column
         };
 
       case 'string-line':
         return {
           ...baseStyles,
           gridColumn: '2 / -1', // Span from column 2 to end
-          '--string-row': element.position.row,
+          gridRow: element.position.row,
           '--string-thickness': this.getStringThickness(element.data?.stringIndex || 0),
           '--string-gradient': this.getStringGradient(element.data?.stringIndex || 0),
           '--string-shadow': this.getStringShadow(element.data?.stringIndex || 0)

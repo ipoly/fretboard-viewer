@@ -16,15 +16,45 @@ const GridLayers = {
 } as const;
 
 /**
+ * CSS custom properties for responsive grid variables
+ */
+export const responsiveGridVariables = css`
+  /* 桌面端默认值 */
+  --open-string-width: 80px;
+  --fret-width: 80px;
+  --string-height: 50px;
+
+  @media (max-width: 1024px) {
+    --open-string-width: 70px;
+    --fret-width: 70px;
+    --string-height: 45px;
+  }
+
+  @media (max-width: 768px) {
+    --open-string-width: 60px;
+    --fret-width: 60px;
+    --string-height: 40px;
+  }
+
+  @media (max-width: 480px) {
+    --open-string-width: 50px;
+    --fret-width: 50px;
+    --string-height: 35px;
+  }
+`;
+
+/**
  * Main fretboard grid container styles
  */
 export const fretboardGridStyles = css`
+  ${responsiveGridVariables} /* 确保CSS变量在网格容器中可用 */
+
   display: grid;
   grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
   grid-template-rows: repeat(6, var(--string-height));
 
-  /* 关键设置：防止子元素拉伸，支持 sticky positioning */
-  align-items: start;
+  /* 为品格编号留出上下空间 */
+  padding: var(--string-height) 0; /* 上下各留出一行高度的空间 */
 
   /* 滚动设置 */
   overflow-x: auto;
@@ -77,23 +107,50 @@ export const fretboardGridStyles = css`
  * Fret line styles
  */
 export const fretLineStyles = css`
-  grid-column: var(--fret-column);
-  grid-row: 1 / -1; /* 跨越所有行 */
+  /* Grid positioning will be set via style prop */
   z-index: ${GridLayers.FRET_LINES};
 
   width: 3px;
+  height: 100%; /* Ensure fret lines span the full height of the grid */
   background: linear-gradient(to bottom, #FFD700, #FFA500, #FFD700);
   box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
   border-radius: 1.5px;
-  justify-self: center; /* 在网格单元格中居中 */
+  justify-self: right; /* 在网格单元格中居右*/
+  position: relative; /* 为伪元素定位 */
+
+  /* 品格编号伪元素 */
+  &::before {
+    content: attr(data-fret-number);
+    position: absolute;
+    top: calc(-1 * var(--string-height)/2 - 1em /2); /* 位于指板padding区域内 */
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+
+    /* 响应式字体大小 */
+    @media (max-width: 1024px) {
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 10px;
+    }
+  }
 `;
 
 /**
  * String line styles
  */
 export const stringLineStyles = css`
-  grid-column: 2 / -1; /* 从第二列开始到最后一列 */
-  grid-row: var(--string-row);
+  /* Grid positioning will be set via style prop */
   z-index: ${GridLayers.STRING_LINES};
 
   height: var(--string-thickness);
@@ -138,11 +195,65 @@ export const openStringMaskStyles = css`
   position: sticky;
   left: 0;
 
+  /* 确保元素填满整个网格区域 */
+  align-self: stretch; /* 覆盖父容器的默认对齐 */
+  height: 100%; /* 确保高度填满 */
+
   /* 与指板底色相同的背景遮挡 */
   background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%);
 
   /* 可选的分隔线 */
   border-right: 1px solid rgba(0, 0, 0, 0.1);
+
+  /* 确保不会遮挡空弦标记 */
+  pointer-events: none; /* 允许点击穿透到空弦标记 */
+
+  /* 空弦编号伪元素 - 位于品丝上方 */
+  &::before {
+    content: "0";
+    position: absolute;
+    top: calc(-1 * var(--string-height)/2 - 1em/2); /* 位于指板padding区域内 */
+    right: 1.5px; /* 对齐右侧品丝 */
+    transform: translateX(50%);
+
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: auto; /* 恢复伪元素的点击事件 */
+
+    /* 响应式字体大小 */
+    @media (max-width: 1024px) {
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 10px;
+    }
+  }
+
+  /* 右侧品丝伪元素 - 使用品丝样式 */
+  &::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    /* 品丝样式 */
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, #FFD700, #FFA500, #FFD700);
+    border-radius: 1.5px;
+    pointer-events: auto; /* 恢复伪元素的点击事件 */
+
+    /* 品丝投影效果 - 从整个遮罩层移动到品丝上 */
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.6), 2px 0 8px rgba(0, 0, 0, 0.3);
+  }
 `;
 
 /**
@@ -204,78 +315,4 @@ export const openStringMarkerStyles = css`
   position: sticky;
   left: 0;
   z-index: ${GridLayers.OPEN_STRING_MARKERS}; /* 最顶层 */
-`;
-
-/**
- * Fret numbers container styles
- */
-export const fretNumbersStyles = css`
-  display: grid;
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
-  grid-template-rows: 30px; /* 固定高度 */
-
-  /* 定位在指板上方 */
-  margin-bottom: 10px;
-`;
-
-/**
- * Individual fret number styles
- */
-export const fretNumberStyles = css`
-  grid-column: var(--fret-column);
-  grid-row: 1;
-
-  justify-self: center;
-  align-self: center;
-
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-
-  /* 响应式字体大小 */
-  @media (max-width: 1024px) {
-    font-size: 14px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 10px;
-  }
-
-  /* 空弦列的数字（显示 "0"） */
-  &.fret-number--open {
-    grid-column: 1;
-  }
-`;
-
-/**
- * CSS custom properties for responsive grid variables
- */
-export const responsiveGridVariables = css`
-  /* 桌面端默认值 */
-  --open-string-width: 80px;
-  --fret-width: 80px;
-  --string-height: 50px;
-
-  @media (max-width: 1024px) {
-    --open-string-width: 70px;
-    --fret-width: 70px;
-    --string-height: 45px;
-  }
-
-  @media (max-width: 768px) {
-    --open-string-width: 60px;
-    --fret-width: 60px;
-    --string-height: 40px;
-  }
-
-  @media (max-width: 480px) {
-    --open-string-width: 50px;
-    --fret-width: 50px;
-    --string-height: 35px;
-  }
 `;
