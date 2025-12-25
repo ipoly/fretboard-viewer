@@ -24,17 +24,19 @@ const noteCircle = css`
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
   border: 3px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: default; /* 改为默认光标，移除交互提示 */
+  /* transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); */ /* 暂时禁用过渡动画 */
   transform: translate(-50%, -50%);
   z-index: 10;
 
-  /* Keyboard focus styles */
+  /* 暂时禁用键盘焦点样式 */
+  /*
   &:focus {
     outline: 3px solid #FFD700;
     outline-offset: 2px;
     transform: translate(-50%, -50%) scale(1.1);
   }
+  */
 
   /* Touch-friendly sizing for tablets and mobile */
   @media (max-width: 1024px) {
@@ -57,7 +59,8 @@ const noteCircle = css`
     border-width: 2px;
   }
 
-  /* Enhanced touch interactions */
+  /* 暂时禁用悬停交互效果 */
+  /*
   @media (hover: hover) {
     &:hover {
       transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
@@ -78,8 +81,10 @@ const noteCircle = css`
       }
     }
   }
+  */
 
-  /* Touch feedback for devices without hover */
+  /* 暂时禁用触摸反馈 */
+  /*
   @media (hover: none) {
     &:active {
       transform: translate(-50%, -50%) scale(1.1);
@@ -92,6 +97,7 @@ const noteCircle = css`
     transform: translate(-50%, -50%) scale(0.95);
     transition: all 0.1s ease;
   }
+  */
 `
 
 /**
@@ -139,6 +145,8 @@ const NotePosition: React.FC<NotePositionProps> = ({
         left: `${leftPosition}px`,
         top: '50%'
       }}
+      /* 暂时禁用交互属性 */
+      /*
       role="button"
       tabIndex={0}
       aria-label={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) on fret ${fret}`}
@@ -149,6 +157,7 @@ const NotePosition: React.FC<NotePositionProps> = ({
           // Could add audio playback or other interaction here
         }
       }}
+      */
     >
       {displayText}
     </div>
