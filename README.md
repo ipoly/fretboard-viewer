@@ -2,14 +2,61 @@
 
 Interactive guitar fretboard viewer for learning scales and music theory.
 
-## Technology Stack
+## 🎸 Live Demo
+
+**[Try it now →](https://ipoly.github.io/fretboard-viewer/)**
+
+> 💡 This is a Progressive Web App (PWA) - you can install it on your device for offline use!
+
+## 🚀 Quick Start
+
+1. Select a musical key from the dropdown
+2. Toggle between note names and scale degrees
+3. Install as PWA for offline use (look for install icon in browser)
+
+## ✨ Features
+
+- Interactive guitar fretboard visualization
+- Key selection for different musical keys
+- Toggle between note names and scale degrees
+- Responsive design for desktop and tablet
+- Progressive Web App capabilities
+- Offline functionality
+
+## 📱 PWA Installation
+
+This application is a fully functional PWA that can be installed on your device for offline use.
+
+### Desktop (Chrome/Edge)
+1. Look for the install icon (⊕) in the address bar
+2. Click "Install" to add to your applications
+
+### Mobile (iOS Safari)
+1. Tap the Share button
+2. Select "Add to Home Screen"
+
+### Mobile (Android Chrome)
+1. Tap the menu (⋮)
+2. Select "Add to Home Screen"
+
+### Automatic Updates
+The app automatically checks for updates and will notify you when a new version is available. Updates include:
+- New features and improvements
+- Icon and visual updates
+- Performance enhancements
+
+### Offline Support
+Once installed, the app works offline and caches all necessary resources for a smooth experience without internet connection.
+
+## 🛠 Technology Stack
 
 - **Package Manager**: pnpm (fast, efficient package management)
 - **Toolchain Management**: proto (unified toolchain version management)
-- **Frontend Framework**: React 18 with TypeScript
+- **Frontend Framework**: React 19 with TypeScript
 - **Build Tool**: Vite (fast development and optimized builds)
 - **Styling**: Emotion (CSS-in-JS for component-scoped styles)
 - **State Management**: Zustand (lightweight, modern state management)
+- **Testing**: Vitest with React Testing Library
 
 ## Development Setup
 
@@ -21,7 +68,11 @@ Interactive guitar fretboard viewer for learning scales and music theory.
 
 ### Installation
 
-1. Clone the repository
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ipoly/fretboard-viewer.git
+   cd fretboard-viewer
+   ```
 2. Install dependencies:
    ```bash
    pnpm install
@@ -35,6 +86,9 @@ Interactive guitar fretboard viewer for learning scales and music theory.
 - `pnpm build:gh-pages` - Build for GitHub Pages deployment
 - `pnpm preview` - Preview production build
 - `pnpm lint` - Type check with TypeScript
+- `pnpm test` - Run tests in watch mode
+- `pnpm test:run` - Run tests once
+- `pnpm test:coverage` - Run tests with coverage report
 
 ## Build Optimizations
 
@@ -87,32 +141,6 @@ src/
 ├── types/               # TypeScript type definitions
 └── styles/              # Global styles and themes
 ```
-
-## Features
-
-- Interactive guitar fretboard visualization
-- Key selection for different musical keys
-- Toggle between note names and scale degrees
-- Responsive design for desktop and tablet
-- Progressive Web App capabilities
-- Offline functionality
-
-## PWA (Progressive Web App)
-
-This application is a fully functional PWA that can be installed on your device:
-
-### Installation
-- **Desktop**: Look for the install icon in your browser's address bar
-- **Mobile**: Use "Add to Home Screen" from your browser menu
-
-### Automatic Updates
-The app automatically checks for updates and will notify you when a new version is available. Updates include:
-- New features and improvements
-- Icon and visual updates
-- Performance enhancements
-
-### Offline Support
-Once installed, the app works offline and caches all necessary resources for a smooth experience without internet connection.
 
 ## License
 
