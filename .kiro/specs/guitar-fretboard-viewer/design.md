@@ -12,7 +12,7 @@ The application follows modern React patterns with functional components, hooks,
 
 - **Package Manager**: pnpm (fast, efficient package management)
 - **Toolchain Management**: proto (unified toolchain version management)
-- **Frontend Framework**: React 18 with TypeScript
+- **Frontend Framework**: React 19 with TypeScript
 - **Build Tool**: Vite (fast development and optimized builds)
 - **Styling**: Emotion (CSS-in-JS for component-scoped styles)
 - **State Management**: Zustand (lightweight, modern state management)
@@ -41,14 +41,17 @@ src/
 ```
 App
 ├── Header
+│   ├── AppIcon (🐽 with gradient background)
+│   ├── Title
 │   ├── KeySelector
 │   └── DisplayToggle
 ├── FretboardContainer
 │   ├── FretboardGrid
 │   │   ├── FretMarkers
-│   │   ├── StringLines
+│   │   ├── StringLines (with wound string textures)
 │   │   └── NotePositions[]
-│   └── FretNumbers
+│   ├── FretNumbers
+│   └── ScaleLegend
 └── Footer
 ```
 
@@ -73,7 +76,7 @@ interface NotePosition {
 }
 ```
 
-The main fretboard visualization component that renders the guitar neck with strings, frets, and note positions. Supports horizontal scrolling for viewing extended fret ranges.
+The main fretboard visualization component that renders the guitar neck with strings, frets, and note positions. Features realistic wound string textures for low strings (4th, 5th, 6th strings) using diagonal spiral gradients to simulate copper wire winding. Supports horizontal scrolling for viewing extended fret ranges.
 
 #### KeySelector Component
 ```typescript
@@ -145,6 +148,88 @@ function getColorForNote(note: string, selectedKey: MusicalKey): string;
 ```
 
 Consistent color coding system for visual learning enhancement.
+
+## Visual Design Enhancements
+
+### String Texture System
+
+#### Wound String Visualization
+The application implements realistic wound string textures for authentic guitar string appearance:
+
+```typescript
+interface StringTexture {
+  stringIndex: number;
+  isWound: boolean;
+  gradient: string;
+  thickness: number;
+}
+
+// Low strings (4th, 5th, 6th) use wound texture
+const woundStringGradient = `repeating-linear-gradient(
+  75deg,
+  #A0826D 0px,
+  #E8E8E8 0.8px,
+  #F0F0F0 1.6px,
+  #E8E8E8 2.4px,
+  #A0826D 3.2px
+)`;
+
+// High strings (1st, 2nd, 3rd) use plain steel texture
+const plainStringGradient = 'linear-gradient(to right, #F0F0F0, #D0D0D0, #F0F0F0)';
+```
+
+**Design Features:**
+- **Diagonal Spiral Pattern**: 75-degree gradient angle simulates helical winding
+- **Color Scheme**: Brown base (#A0826D) with light spiral texture (#E8E8E8, #F0F0F0)
+- **Variable Thickness**: String thickness increases from 1st to 6th string (2px to 4.5px)
+- **Enhanced Shadows**: Wound strings have additional box-shadow for 3D effect
+
+### App Branding
+
+#### Icon Design
+```typescript
+interface AppIcon {
+  emoji: '🐽';
+  background: LinearGradient;
+  dimensions: ResponsiveDimensions;
+  shadow: BoxShadow;
+}
+
+const iconBackground = `linear-gradient(135deg, #FFB6C1 0%, #FFA0B4 50%, #FF91A4 100%)`;
+const iconShadow = `
+  0 2px 8px rgba(0, 0, 0, 0.15),
+  0 1px 3px rgba(0, 0, 0, 0.1),
+  inset 0 1px 0 rgba(255, 255, 255, 0.2)
+`;
+```
+
+**Design Features:**
+- **Pig Nose Emoji**: Playful, memorable brand identity
+- **Pink Gradient Background**: Three-stop gradient for depth and visual appeal
+- **Rounded Corners**: 12px border-radius for modern app icon appearance
+- **Multi-layer Shadow**: Outer shadow for depth, inner highlight for glossy effect
+- **Responsive Sizing**: Scales from 36px to 48px based on screen size
+
+### Layout Architecture
+
+#### Information Hierarchy
+The application follows a three-tier layout structure:
+
+1. **Control Layer** (Top): Interactive elements for user input
+   - App icon and title for branding
+   - Key selector for musical key selection
+   - Display toggle for note/degree switching
+
+2. **Content Layer** (Center): Primary information display
+   - Fretboard grid with scrollable interface
+   - Realistic string textures and note positions
+   - Fret number markers for position reference
+
+3. **Reference Layer** (Bottom): Contextual information
+   - Scale legend with color-coded degrees
+   - Responsive layout for different screen sizes
+
+This hierarchy ensures logical information flow and optimal user experience across devices.
 
 ## Data Models
 
