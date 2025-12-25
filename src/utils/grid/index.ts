@@ -14,6 +14,80 @@ export enum GridLayers {
   OPEN_STRING_MARKERS = 5   // 空弦标记 - 最顶层
 }
 
+/**
+ * Layer management validation and enforcement
+ */
+export class LayerManager {
+  /**
+   * Validate that all elements have correct z-index values
+   */
+  static validateLayerOrder(elements: HTMLElement[]): boolean {
+    for (const element of elements) {
+      const zIndex = parseInt(getComputedStyle(element).zIndex || '0');
+      const expectedLayer = this.getExpectedLayer(element);
+
+      if (expectedLayer !== null && zIndex !== expectedLayer) {
+        console.warn(`Layer validation failed: Element ${element.className} has z-index ${zIndex}, expected ${expectedLayer}`);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Get expected layer for an element based on its attributes
+   */
+  private static getExpectedLayer(element: HTMLElement): number | null {
+    if (element.dataset.layer) {
+      switch (element.dataset.layer) {
+        case 'fret-lines': return GridLayers.FRET_LINES;
+        case 'string-lines': return GridLayers.STRING_LINES;
+        case 'note-markers': return GridLayers.NOTE_MARKERS;
+        case 'open-string-mask': return GridLayers.OPEN_STRING_MASK;
+        case 'open-string-markers': return GridLayers.OPEN_STRING_MARKERS;
+      }
+    }
+
+    // Check by class name
+    if (element.classList.contains('note-marker')) return GridLayers.NOTE_MARKERS;
+    if (element.classList.contains('open-string-marker')) return GridLayers.OPEN_STRING_MARKERS;
+
+    return null;
+  }
+
+  /**
+   * Enforce correct layer order on all elements
+   */
+  static enforceLayerOrder(container: HTMLElement): void {
+    const fretLines = container.querySelectorAll('[data-layer="fret-lines"]');
+    const stringLines = container.querySelectorAll('[data-layer="string-lines"]');
+    const noteMarkers = container.querySelectorAll('[data-layer="note-markers"]');
+    const openStringMask = container.querySelectorAll('[data-layer="open-string-mask"]');
+    const openStringMarkers = container.querySelectorAll('[data-layer="open-string-markers"]');
+
+    // Enforce z-index values
+    fretLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.FRET_LINES.toString());
+    stringLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.STRING_LINES.toString());
+    noteMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.NOTE_MARKERS.toString());
+    openStringMask.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MASK.toString());
+    openStringMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MARKERS.toString());
+  }
+
+  /**
+   * Get layer information for debugging
+   */
+  static getLayerInfo(): Record<string, number> {
+    return {
+      'Fret Lines (底层)': GridLayers.FRET_LINES,
+      'String Lines': GridLayers.STRING_LINES,
+      'Note Markers': GridLayers.NOTE_MARKERS,
+      'Open String Mask': GridLayers.OPEN_STRING_MASK,
+      'Open String Markers (顶层)': GridLayers.OPEN_STRING_MARKERS
+    };
+  }
+}
+
 // Grid dimensions interface
 export interface GridDimensions {
   columns: number;        // fretCount + 1 (包含空弦列)
@@ -52,11 +126,11 @@ export function stringToGridRow(stringIndex: number): number {
  * Convert fret number to grid column position
  * 品格号到网格列的映射
  *
- * @param fretNumber - 1-based fret number (1 = first fret, 2 = second fret, etc.)
+ * @param fretNumber - 0-based fret number (0 = open string, 1 = first fret, 2 = second fret, etc.)
  * @returns 1-based grid column position
  */
 export function fretToGridColumn(fretNumber: number): number {
-  return fretNumber + 1; // +1 because open string occupies column 1
+  return fretNumber + 1; // 0-based fret -> 1-based grid column (open string = column 1, fret 1 = column 2, etc.)
 }
 
 /**
@@ -157,31 +231,56 @@ export function getStickyColumnConfig(
 
 /**
  * Generate CSS custom properties for responsive grid sizing
+ * Enhanced with more granular breakpoints for better mobile experience
  *
  * @param breakpoint - Responsive breakpoint name
  * @returns CSS custom properties object
  */
-export function getResponsiveGridVariables(breakpoint: 'desktop' | 'tablet' | 'mobile' | 'phone') {
+export function getResponsiveGridVariables(
+  breakpoint: 'desktop' | 'large-tablet' | 'tablet' | 'large-mobile' | 'mobile' | 'small-mobile'
+) {
   const sizes = {
     desktop: {
+      openStringWidth: '85px',
+      fretWidth: '85px',
+      stringHeight: '52px',
+      gridGap: '2px',
+      borderRadius: '8px'
+    },
+    'large-tablet': {
       openStringWidth: '80px',
       fretWidth: '80px',
-      stringHeight: '50px'
+      stringHeight: '50px',
+      gridGap: '2px',
+      borderRadius: '8px'
     },
     tablet: {
-      openStringWidth: '70px',
-      fretWidth: '70px',
-      stringHeight: '45px'
+      openStringWidth: '72px',
+      fretWidth: '72px',
+      stringHeight: '46px',
+      gridGap: '1px',
+      borderRadius: '6px'
+    },
+    'large-mobile': {
+      openStringWidth: '64px',
+      fretWidth: '64px',
+      stringHeight: '42px',
+      gridGap: '1px',
+      borderRadius: '4px'
     },
     mobile: {
-      openStringWidth: '60px',
-      fretWidth: '60px',
-      stringHeight: '40px'
+      openStringWidth: '48px',
+      fretWidth: '48px',
+      stringHeight: '34px',
+      gridGap: '0px',
+      borderRadius: '3px'
     },
-    phone: {
-      openStringWidth: '50px',
-      fretWidth: '50px',
-      stringHeight: '35px'
+    'small-mobile': {
+      openStringWidth: '42px',
+      fretWidth: '42px',
+      stringHeight: '30px',
+      gridGap: '0px',
+      borderRadius: '2px'
     }
   };
 
@@ -190,7 +289,9 @@ export function getResponsiveGridVariables(breakpoint: 'desktop' | 'tablet' | 'm
   return {
     '--open-string-width': config.openStringWidth,
     '--fret-width': config.fretWidth,
-    '--string-height': config.stringHeight
+    '--string-height': config.stringHeight,
+    '--grid-gap': config.gridGap,
+    '--border-radius': config.borderRadius
   };
 }
 

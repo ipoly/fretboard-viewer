@@ -106,6 +106,7 @@ export class FretboardGridManager {
 
   /**
    * Generate CSS variables for the current grid configuration
+   * Enhanced with responsive grid variables
    */
   private generateCSSVariables(): Record<string, string> {
     return {

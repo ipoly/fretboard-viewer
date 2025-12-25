@@ -415,4 +415,81 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     // Should render without errors
     expect(container.firstChild).toBeInTheDocument()
   })
+
+  it('should apply responsive CSS variables correctly', () => {
+    const { container } = render(
+      <FretboardGrid
+        selectedKey="C"
+        displayMode="notes"
+        fretCount={12}
+      />
+    )
+
+    // Find the main fretboard grid element
+    const fretboardGrid = container.querySelector('[role="application"]')
+    expect(fretboardGrid).toBeInTheDocument()
+
+    // Verify that CSS variables are applied
+    const computedStyle = window.getComputedStyle(fretboardGrid as Element)
+
+    // Check that the grid template columns uses CSS variables
+    const gridTemplateColumns = computedStyle.gridTemplateColumns
+    expect(gridTemplateColumns).toContain('var(--open-string-width)')
+    expect(gridTemplateColumns).toContain('var(--fret-width)')
+
+    // Check that the grid template rows uses CSS variables
+    const gridTemplateRows = computedStyle.gridTemplateRows
+    expect(gridTemplateRows).toContain('var(--string-height)')
+  })
+
+  it('should have proper grid structure for responsive design', () => {
+    const { container } = render(
+      <FretboardGrid
+        selectedKey="C"
+        displayMode="notes"
+        fretCount={15}
+      />
+    )
+
+    // Find the main fretboard grid element
+    const fretboardGrid = container.querySelector('[role="application"]')
+    expect(fretboardGrid).toBeInTheDocument()
+
+    // Verify CSS Grid display
+    const computedStyle = window.getComputedStyle(fretboardGrid as Element)
+    expect(computedStyle.display).toBe('grid')
+
+    // Verify overflow settings for horizontal scrolling
+    expect(computedStyle.overflowX).toBe('auto')
+    expect(computedStyle.overflowY).toBe('hidden')
+
+    // Verify that fret count CSS variable is set correctly
+    const fretCountVar = (fretboardGrid as HTMLElement).style.getPropertyValue('--fret-count')
+    expect(fretCountVar).toBe('15')
+  })
+
+  it('should maintain grid structure with different fret counts', () => {
+    const fretCounts = [12, 15, 18, 24]
+
+    fretCounts.forEach(fretCount => {
+      const { container } = render(
+        <FretboardGrid
+          selectedKey="C"
+          displayMode="notes"
+          fretCount={fretCount}
+        />
+      )
+
+      const fretboardGrid = container.querySelector('[role="application"]')
+      expect(fretboardGrid).toBeInTheDocument()
+
+      // Verify fret count variable is set correctly
+      const fretCountVar = (fretboardGrid as HTMLElement).style.getPropertyValue('--fret-count')
+      expect(fretCountVar).toBe(fretCount.toString())
+
+      // Verify grid structure is maintained
+      const computedStyle = window.getComputedStyle(fretboardGrid as Element)
+      expect(computedStyle.display).toBe('grid')
+    })
+  })
 })

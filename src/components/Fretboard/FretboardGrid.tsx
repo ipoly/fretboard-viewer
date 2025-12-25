@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { css } from '@emotion/react'
 import { MusicalKey, DisplayMode } from '../../types'
 import { getFretboardPositions } from '../../utils/music/fretboard'
@@ -7,7 +7,8 @@ import {
   fretboardGridStyles,
   fretLineStyles,
   stringLineStyles,
-  openStringMaskStyles
+  openStringMaskStyles,
+  LayerManager
 } from '../../utils/grid'
 import NotePosition from './NotePosition'
 
@@ -17,27 +18,52 @@ interface FretboardGridProps {
   fretCount: number
 }
 
-// Container styles that wrap the grid system
+// Container styles that wrap the grid system with enhanced responsive design
 const fretboardContainer = css`
   position: relative;
   width: 100%;
-  height: 500px;
-  padding: 0 20px 20px 20px; /* 移除顶部边距，因为指板网格自身已有padding */
 
-  /* Responsive height adjustments */
+  /* 动态高度基于网格尺寸 */
+  height: calc(var(--string-height) * 12); /* 6弦 * 2 + padding */
+
+  /* 响应式内边距 */
+  padding: 0 calc(var(--open-string-width) * 0.25) calc(var(--string-height) * 0.4) calc(var(--open-string-width) * 0.25);
+
+  /* 断点特定的高度和内边距优化 */
+  @media (max-width: 1200px) {
+    height: 520px;
+    padding: 0 20px 20px 20px;
+  }
+
   @media (max-width: 1024px) {
-    height: 400px;
+    height: 460px;
     padding: 0 18px 18px 18px;
   }
 
   @media (max-width: 768px) {
-    height: 350px;
+    height: 420px;
     padding: 0 15px 15px 15px;
   }
 
-  @media (max-width: 480px) {
-    height: 300px;
+  @media (max-width: 640px) {
+    height: 380px;
     padding: 0 12px 12px 12px;
+  }
+
+  @media (max-width: 480px) {
+    height: 340px;
+    padding: 0 10px 10px 10px;
+  }
+
+  @media (max-width: 360px) {
+    height: 300px;
+    padding: 0 8px 8px 8px;
+  }
+
+  /* 触摸设备优化 */
+  @media (hover: none) and (pointer: coarse) {
+    /* 触摸设备上稍大的内边距便于操作 */
+    padding: 0 16px 16px 16px;
   }
 `
 
@@ -49,9 +75,29 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   // Initialize grid manager
   const gridManager = new FretboardGridManager(fretCount)
   const layoutConfig = gridManager.getLayoutConfig()
+  const fretboardRef = useRef<HTMLDivElement>(null)
 
   // Get all fret positions for the selected key
   const fretPositions = getFretboardPositions(selectedKey, fretCount)
+
+  // Enforce layer management after component mounts and updates
+  useEffect(() => {
+    if (fretboardRef.current) {
+      LayerManager.enforceLayerOrder(fretboardRef.current)
+
+      // Validate layer order in development
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        const allElements = Array.from(fretboardRef.current.querySelectorAll('[data-layer], .note-marker, .open-string-marker')) as HTMLElement[]
+        const isValid = LayerManager.validateLayerOrder(allElements)
+
+        if (!isValid) {
+          console.warn('Layer validation failed. Layer info:', LayerManager.getLayerInfo())
+        } else {
+          console.log('✅ Layer management system validated successfully')
+        }
+      }
+    }
+  }, [selectedKey, displayMode, fretCount])
 
   // Keyboard navigation handler (keeping the same functionality)
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -91,6 +137,7 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
     <div css={fretboardContainer}>
       {/* Main fretboard grid */}
       <div
+        ref={fretboardRef}
         css={fretboardGridStyles}
         style={{
           '--fret-count': fretCount,

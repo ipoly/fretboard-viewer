@@ -132,7 +132,7 @@ function stringToGridRow(stringIndex: number): number {
 
 // 品格号到网格列的映射
 function fretToGridColumn(fretNumber: number): number {
-  return fretNumber + 2; // +1 for 1-based, +1 for open string column
+  return fretNumber + 1; // 0-based fret -> 1-based grid column
 }
 
 // 空弦列固定在第一列
@@ -160,16 +160,17 @@ const OPEN_STRING_COLUMN = 1;
    - `gridRow = stringIndex + 1`
    - 例：第1弦(stringIndex=0) → 第6行(gridRow=6)
 
-2. **品格号映射**: 品格号(0-N) → 网格列(2-N+2)
-   - `gridColumn = fretNumber + 2`
-   - +1: CSS Grid 是 1-based 坐标
-   - +1: 第一列被空弦占用
-   - 例：第5品格(fretNumber=5) → 第7列(gridColumn=7)
+2. **品格号映射**: 品格号(0-N) → 网格列(1-N+1)
+   - `gridColumn = fretNumber + 1`
+   - 品格0(空弦) → 列1
+   - 品格1(第1品格) → 列2
+   - 品格2(第2品格) → 列3
+   - 例：第5品格(fretNumber=5) → 第6列(gridColumn=6)
 
 **实际例子：**
 
-- 第1弦第12品格的音符: gridRow=1, gridColumn=14
-- 第6弦第0品格的音符: gridRow=6, gridColumn=2
+- 第1弦第12品格的音符: gridRow=1, gridColumn=13
+- 第6弦第0品格的音符(空弦): gridRow=6, gridColumn=1
 - 第3弦空弦音符: gridRow=4, gridColumn=1 (粘性列)
 
 #### 网格元素定位
@@ -542,7 +543,7 @@ const bottomPadding = { desktop: stringSpacing * 0.8, /* ... */ };
 ```typescript
 // 新的简化定位方式
 const noteGridPosition = {
-  gridColumn: fretNumber + 2, // 简单的数学映射
+  gridColumn: fretNumber + 1, // 简单的数学映射: 0-based fret -> 1-based grid column
   gridRow: stringIndex + 1,
   zIndex: 3
 };
@@ -742,7 +743,7 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
 
 ### Property 2: 网格坐标映射正确性
 
-*For any* 音符标记、弦线和品丝元素，它们的网格位置应该正确映射到对应的弦号和品格号，其中弦线和品丝从第二列开始，音符标记使用 (弦号+1, 品格号+2) 的坐标系统。
+*For any* 音符标记、弦线和品丝元素，它们的网格位置应该正确映射到对应的弦号和品格号，其中弦线和品丝从第二列开始，音符标记使用 (弦号+1, 品格号+1) 的坐标系统。
 **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 4.1, 4.2, 4.3**
 
 ### Property 3: 空弦粘性定位行为

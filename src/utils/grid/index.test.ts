@@ -24,6 +24,7 @@ describe('Grid Coordinate Mapping', () => {
   });
 
   it('should map fret number to grid column correctly', () => {
+    expect(fretToGridColumn(0)).toBe(1); // Open string -> column 1
     expect(fretToGridColumn(1)).toBe(2); // 1st fret -> column 2
     expect(fretToGridColumn(2)).toBe(3); // 2nd fret -> column 3
     expect(fretToGridColumn(12)).toBe(13); // 12th fret -> column 13
