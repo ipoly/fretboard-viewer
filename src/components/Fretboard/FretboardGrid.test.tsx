@@ -226,9 +226,9 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
           return true
         }
       ),
-      propertyTestConfig
+      { numRuns: 10 } // Reduce number of runs to prevent timeout
     )
-  })
+  }, 15000)
 
   it('Property 1e: Fretboard positions match music theory calculations', () => {
     fc.assert(

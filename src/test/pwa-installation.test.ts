@@ -348,7 +348,7 @@ describe('PWA Installation Functionality', () => {
 
     it('should provide platform-specific installation instructions', () => {
       const getInstallationInstructions = (userAgent: string) => {
-        if (/iPad|iPhone|iPod/.test(userAgent) && /Safari/.test(userAgent)) {
+        if (/iPad|iPhone|iPod/.test(userAgent) && /Safari/.test(userAgent) && !/CriOS|FxiOS|OPiOS/.test(userAgent)) {
           return {
             platform: 'iOS Safari',
             instructions: 'Tap the Share button and select "Add to Home Screen"',
@@ -369,16 +369,16 @@ describe('PWA Installation Functionality', () => {
         }
       }
 
-      // Test iOS Safari
+      // Test iOS Safari - include Safari in the user agent string
       const iosInstructions = getInstallationInstructions(
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
       )
       expect(iosInstructions.platform).toBe('iOS Safari')
       expect(iosInstructions.canShowPrompt).toBe(false)
 
       // Test Android Chrome
       const androidInstructions = getInstallationInstructions(
-        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120'
+        'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36'
       )
       expect(androidInstructions.platform).toBe('Android Chrome')
       expect(androidInstructions.canShowPrompt).toBe(true)
@@ -457,7 +457,7 @@ describe('PWA Installation Functionality', () => {
         return {
           isValid: missingFields.length === 0 && hasValidIcons,
           missingFields,
-          hasValidIcons,
+          hasValidIcons: hasValidIcons || false, // Ensure it's always a boolean
         }
       }
 
