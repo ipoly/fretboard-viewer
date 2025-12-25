@@ -14,10 +14,11 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'],
       manifest: {
         name: 'Guitar Fretboard Viewer',
         short_name: 'Fretboard',
+        version: '2.0.0',
         description: 'Interactive guitar fretboard viewer for learning scales and music theory',
         theme_color: '#ffffff',
         background_color: '#ffffff',
@@ -37,7 +38,7 @@ export default defineConfig({
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'apple-touch-icon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
@@ -122,6 +123,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: true, // 允许局域网访问
+    https: false, // 可以设置为 true 来启用 HTTPS
+    // 如果需要 HTTPS，可以取消注释下面的配置
+    // https: {
+    //   key: './localhost-key.pem',
+    //   cert: './localhost.pem'
+    // }
   },
   build: {
     outDir: 'dist',
