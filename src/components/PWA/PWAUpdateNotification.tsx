@@ -84,6 +84,12 @@ export function PWAUpdateNotification({
   } = useRegisterSW({
     onRegistered(registration: ServiceWorkerRegistration | undefined) {
       console.log('SW Registered: ' + registration)
+      // Check for updates every 60 seconds in production
+      if (registration && import.meta.env.PROD) {
+        setInterval(() => {
+          registration.update()
+        }, 60000)
+      }
     },
     onRegisterError(error: any) {
       console.log('SW registration error', error)

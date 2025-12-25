@@ -13,12 +13,12 @@ export default defineConfig({
       },
     }),
     VitePWA({
-      registerType: 'prompt',
+      registerType: process.env.NODE_ENV === 'production' ? 'autoUpdate' : 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'favicon.svg'],
       manifest: {
         name: 'Guitar Fretboard Viewer',
         short_name: 'Fretboard',
-        version: '2.0.0',
+        version: '2.1.0',
         description: 'Interactive guitar fretboard viewer for learning scales and music theory',
         theme_color: '#ffffff',
         background_color: '#ffffff',
@@ -107,7 +107,13 @@ export default defineConfig({
         // Skip waiting for new service worker
         skipWaiting: true,
         // Claim clients immediately
-        clientsClaim: true
+        clientsClaim: true,
+        // Force update on manifest changes
+        navigateFallback: null,
+        // Include manifest in precache
+        additionalManifestEntries: [
+          { url: '/manifest.webmanifest', revision: null }
+        ]
       },
       devOptions: {
         enabled: true
