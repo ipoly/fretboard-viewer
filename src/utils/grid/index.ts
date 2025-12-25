@@ -231,26 +231,19 @@ export function getStickyColumnConfig(
 
 /**
  * Generate CSS custom properties for responsive grid sizing
- * Enhanced with more granular breakpoints for better mobile experience
+ * Optimized with fewer breakpoints for better performance
  *
  * @param breakpoint - Responsive breakpoint name
  * @returns CSS custom properties object
  */
 export function getResponsiveGridVariables(
-  breakpoint: 'desktop' | 'large-tablet' | 'tablet' | 'large-mobile' | 'mobile' | 'small-mobile'
+  breakpoint: 'desktop' | 'tablet' | 'mobile' | 'small-mobile'
 ) {
   const sizes = {
     desktop: {
       openStringWidth: '85px',
       fretWidth: '85px',
       stringHeight: '52px',
-      gridGap: '2px',
-      borderRadius: '8px'
-    },
-    'large-tablet': {
-      openStringWidth: '80px',
-      fretWidth: '80px',
-      stringHeight: '50px',
       gridGap: '2px',
       borderRadius: '8px'
     },
@@ -261,26 +254,19 @@ export function getResponsiveGridVariables(
       gridGap: '1px',
       borderRadius: '6px'
     },
-    'large-mobile': {
-      openStringWidth: '64px',
-      fretWidth: '64px',
-      stringHeight: '42px',
-      gridGap: '1px',
+    mobile: {
+      openStringWidth: '56px',
+      fretWidth: '56px',
+      stringHeight: '38px',
+      gridGap: '0px',
       borderRadius: '4px'
     },
-    mobile: {
+    'small-mobile': {
       openStringWidth: '48px',
       fretWidth: '48px',
       stringHeight: '34px',
       gridGap: '0px',
       borderRadius: '3px'
-    },
-    'small-mobile': {
-      openStringWidth: '42px',
-      fretWidth: '42px',
-      stringHeight: '30px',
-      gridGap: '0px',
-      borderRadius: '2px'
     }
   };
 

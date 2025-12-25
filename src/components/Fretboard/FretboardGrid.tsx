@@ -18,52 +18,20 @@ interface FretboardGridProps {
   fretCount: number
 }
 
-// Container styles that wrap the grid system with enhanced responsive design
+// Optimized container styles with simplified responsive design using CSS variables
 const fretboardContainer = css`
   position: relative;
   width: 100%;
 
-  /* 动态高度基于网格尺寸 */
-  height: calc(var(--string-height) * 12); /* 6弦 * 2 + padding */
+  /* Simplified height calculation using CSS variables */
+  height: calc(var(--string-height) * 8); /* Optimized: 6 strings + padding */
 
-  /* 响应式内边距 */
-  padding: 0 calc(var(--open-string-width) * 0.25) calc(var(--string-height) * 0.4) calc(var(--open-string-width) * 0.25);
+  /* Simplified responsive padding using CSS variables */
+  padding: 0 calc(var(--open-string-width) * 0.2) calc(var(--string-height) * 0.3) calc(var(--open-string-width) * 0.2);
 
-  /* 断点特定的高度和内边距优化 */
-  @media (max-width: 1200px) {
-    height: 520px;
-    padding: 0 20px 20px 20px;
-  }
-
-  @media (max-width: 1024px) {
-    height: 460px;
-    padding: 0 18px 18px 18px;
-  }
-
-  @media (max-width: 768px) {
-    height: 420px;
-    padding: 0 15px 15px 15px;
-  }
-
-  @media (max-width: 640px) {
-    height: 380px;
-    padding: 0 12px 12px 12px;
-  }
-
-  @media (max-width: 480px) {
-    height: 340px;
-    padding: 0 10px 10px 10px;
-  }
-
-  @media (max-width: 360px) {
-    height: 300px;
-    padding: 0 8px 8px 8px;
-  }
-
-  /* 触摸设备优化 */
+  /* Touch device optimization */
   @media (hover: none) and (pointer: coarse) {
-    /* 触摸设备上稍大的内边距便于操作 */
-    padding: 0 16px 16px 16px;
+    padding: 0 calc(var(--open-string-width) * 0.25) calc(var(--string-height) * 0.35) calc(var(--open-string-width) * 0.25);
   }
 `
 
@@ -72,66 +40,62 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
   displayMode,
   fretCount
 }) => {
-  // Initialize grid manager
-  const gridManager = new FretboardGridManager(fretCount)
-  const layoutConfig = gridManager.getLayoutConfig()
+  // Optimize: Create grid manager only once and memoize layout config
+  const gridManager = React.useMemo(() => new FretboardGridManager(fretCount), [fretCount])
+  const layoutConfig = React.useMemo(() => gridManager.getLayoutConfig(), [gridManager])
   const fretboardRef = useRef<HTMLDivElement>(null)
 
   // Get all fret positions for the selected key
-  const fretPositions = getFretboardPositions(selectedKey, fretCount)
+  const fretPositions = React.useMemo(() => getFretboardPositions(selectedKey, fretCount), [selectedKey, fretCount])
 
-  // Enforce layer management after component mounts and updates
+  // Optimize: Reduce layer management overhead - only run when necessary
   useEffect(() => {
     if (fretboardRef.current) {
       LayerManager.enforceLayerOrder(fretboardRef.current)
 
-      // Validate layer order in development
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      // Only validate in development and reduce frequency
+      if (import.meta.env.DEV && Math.random() < 0.1) { // Only 10% of the time
         const allElements = Array.from(fretboardRef.current.querySelectorAll('[data-layer], .note-marker, .open-string-marker')) as HTMLElement[]
         const isValid = LayerManager.validateLayerOrder(allElements)
 
         if (!isValid) {
           console.warn('Layer validation failed. Layer info:', LayerManager.getLayerInfo())
-        } else {
-          console.log('✅ Layer management system validated successfully')
         }
       }
     }
   }, [selectedKey, displayMode, fretCount])
 
-  // Keyboard navigation handler (keeping the same functionality)
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    const fretWidth = 80 // Keep for scroll calculations
+  // Optimized keyboard navigation with CSS variable-based scroll calculation
+  const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+    const target = e.currentTarget as HTMLElement
+    if (!target) return
+
+    // Use CSS variable value for consistent scrolling
+    const computedStyle = getComputedStyle(target)
+    const fretWidth = parseInt(computedStyle.getPropertyValue('--fret-width')) || 80
+
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault()
-        if (e.currentTarget instanceof HTMLElement) {
-          e.currentTarget.scrollLeft = Math.max(0, e.currentTarget.scrollLeft - fretWidth)
-        }
+        target.scrollLeft = Math.max(0, target.scrollLeft - fretWidth)
         break
       case 'ArrowRight':
         e.preventDefault()
-        if (e.currentTarget instanceof HTMLElement) {
-          e.currentTarget.scrollLeft = Math.min(
-            e.currentTarget.scrollWidth - e.currentTarget.clientWidth,
-            e.currentTarget.scrollLeft + fretWidth
-          )
-        }
+        target.scrollLeft = Math.min(
+          target.scrollWidth - target.clientWidth,
+          target.scrollLeft + fretWidth
+        )
         break
       case 'Home':
         e.preventDefault()
-        if (e.currentTarget instanceof HTMLElement) {
-          e.currentTarget.scrollLeft = 0
-        }
+        target.scrollLeft = 0
         break
       case 'End':
         e.preventDefault()
-        if (e.currentTarget instanceof HTMLElement) {
-          e.currentTarget.scrollLeft = e.currentTarget.scrollWidth - e.currentTarget.clientWidth
-        }
+        target.scrollLeft = target.scrollWidth - target.clientWidth
         break
     }
-  }
+  }, [])
 
   return (
     <div css={fretboardContainer}>
