@@ -97,6 +97,23 @@ src/
 - Progressive Web App capabilities
 - Offline functionality
 
+## PWA (Progressive Web App)
+
+This application is a fully functional PWA that can be installed on your device:
+
+### Installation
+- **Desktop**: Look for the install icon in your browser's address bar
+- **Mobile**: Use "Add to Home Screen" from your browser menu
+
+### Automatic Updates
+The app automatically checks for updates and will notify you when a new version is available. Updates include:
+- New features and improvements
+- Icon and visual updates
+- Performance enhancements
+
+### Offline Support
+Once installed, the app works offline and caches all necessary resources for a smooth experience without internet connection.
+
 ## License
 
 MIT
