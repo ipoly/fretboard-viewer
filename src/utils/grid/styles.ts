@@ -257,13 +257,12 @@ export const openStringMaskStyles = css`
 `;
 
 /**
- * Base note marker styles (shared by both regular and open string markers)
+ * Base note marker styles (unified for both regular and open string markers)
+ * This implements the unified CSS class-based styling system
  */
 export const baseNoteMarkerStyles = css`
-  grid-row: var(--string-row);
   justify-self: center;
   align-self: center;
-  z-index: ${GridLayers.NOTE_MARKERS};
 
   width: 32px;
   height: 32px;
@@ -276,9 +275,8 @@ export const baseNoteMarkerStyles = css`
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: var(--note-color);
 
-  /* 响应式尺寸调整 */
+  /* Responsive sizing */
   @media (max-width: 1024px) {
     width: 30px;
     height: 30px;
@@ -300,19 +298,23 @@ export const baseNoteMarkerStyles = css`
 
 /**
  * Regular note marker styles (for fretted notes)
+ * Uses direct CSS Grid positioning instead of CSS custom properties
  */
 export const noteMarkerStyles = css`
   ${baseNoteMarkerStyles}
-  grid-column: var(--note-column);
+  z-index: ${GridLayers.NOTE_MARKERS};
+  /* Grid positioning (gridRow and gridColumn) will be set via style prop */
 `;
 
 /**
  * Open string marker styles (with sticky positioning)
+ * Uses direct CSS Grid positioning and sticky behavior
  */
 export const openStringMarkerStyles = css`
   ${baseNoteMarkerStyles}
-  grid-column: 1;
+  grid-column: 1; /* Always in first column */
   position: sticky;
   left: 0;
-  z-index: ${GridLayers.OPEN_STRING_MARKERS}; /* 最顶层 */
+  z-index: ${GridLayers.OPEN_STRING_MARKERS}; /* Highest layer */
+  /* gridRow will be set via style prop */
 `;

@@ -139,6 +139,7 @@ export class FretboardGridManager {
 
   /**
    * Get CSS style object for a grid element
+   * Updated to use direct CSS Grid positioning instead of CSS custom properties
    */
   getElementStyles(element: GridElement): Record<string, any> {
     const baseStyles = {
@@ -152,7 +153,7 @@ export class FretboardGridManager {
       case 'fret-line':
         return {
           ...baseStyles,
-          gridColumn: element.position.column, // Use the calculated column position
+          gridColumn: element.position.column,
           gridRow: '1 / -1', // Span all rows
         };
 
@@ -167,21 +168,19 @@ export class FretboardGridManager {
         };
 
       case 'note-marker':
+        // Direct CSS Grid positioning - no custom properties needed
         return {
-          ...baseStyles,
-          '--note-column': element.position.column,
-          '--string-row': element.position.row,
-          '--note-color': this.getNoteColor(element.data)
+          gridColumn: element.position.column,
+          gridRow: element.position.row,
+          zIndex: element.position.layer
         };
 
       case 'open-string-marker':
+        // Direct CSS Grid positioning with sticky behavior
         return {
-          ...baseStyles,
-          gridColumn: OPEN_STRING_COLUMN,
-          position: 'sticky',
-          left: 0,
-          '--string-row': element.position.row,
-          '--note-color': this.getNoteColor(element.data)
+          gridRow: element.position.row,
+          zIndex: element.position.layer,
+          // grid-column: 1 and position: sticky are handled by CSS class
         };
 
       case 'open-string-mask':
@@ -234,28 +233,6 @@ export class FretboardGridManager {
     } else {
       return '0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)';
     }
-  }
-
-  /**
-   * Get note color based on scale degree
-   */
-  private getNoteColor(fretPosition?: FretPosition): string {
-    if (!fretPosition?.scaleDegree) {
-      return '#999999';
-    }
-
-    // Import scale degree colors
-    const SCALE_DEGREE_COLORS: Record<number, string> = {
-      1: '#E74C3C', // Root - Red
-      2: '#F39C12', // Second - Orange
-      3: '#F1C40F', // Third - Yellow
-      4: '#27AE60', // Fourth - Green
-      5: '#3498DB', // Fifth - Blue
-      6: '#9B59B6', // Sixth - Purple
-      7: '#E91E63', // Seventh - Pink
-    };
-
-    return SCALE_DEGREE_COLORS[fretPosition.scaleDegree] || '#999999';
   }
 
   /**

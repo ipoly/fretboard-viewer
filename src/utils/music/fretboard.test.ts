@@ -78,12 +78,18 @@ describe('Fretboard Calculations - Unit Tests', () => {
       }
     })
 
-    it('should exclude open strings (fret 0)', () => {
+    it('should include open strings (fret 0) when they are in the scale', () => {
       const positions = getFretboardPositions('C', 12)
 
-      // No position should have fret 0
-      for (const position of positions) {
-        expect(position.fret).toBeGreaterThan(0)
+      // Should include open strings that are in the C major scale
+      const openStringPositions = positions.filter(p => p.fret === 0)
+      expect(openStringPositions.length).toBeGreaterThan(0)
+
+      // Verify that open string positions are valid
+      for (const position of openStringPositions) {
+        expect(position.fret).toBe(0)
+        expect(position.isInScale).toBe(true)
+        expect(position.scaleDegree).not.toBeNull()
       }
     })
 
@@ -121,7 +127,7 @@ describe('Fretboard Calculations - Unit Tests', () => {
       for (const position of positions) {
         expect(position.string).toBeGreaterThanOrEqual(0)
         expect(position.string).toBeLessThan(STANDARD_TUNING.length)
-        expect(position.fret).toBeGreaterThan(0)
+        expect(position.fret).toBeGreaterThanOrEqual(0) // Now includes fret 0 (open strings)
         expect(position.fret).toBeLessThanOrEqual(24)
       }
     })
@@ -300,15 +306,30 @@ describe('Fretboard Calculations - Unit Tests', () => {
 
     it('should handle zero maxFrets parameter', () => {
       const positions = getFretboardPositions('C', 0)
-      expect(positions).toHaveLength(0) // No frets means no positions
+
+      // With maxFrets = 0, should only include open strings that are in the scale
+      const openStringPositions = positions.filter(p => p.fret === 0)
+      expect(positions).toEqual(openStringPositions) // All positions should be open strings
+
+      // Verify all positions are fret 0
+      for (const position of positions) {
+        expect(position.fret).toBe(0)
+      }
     })
 
     it('should handle single fret parameter', () => {
       const positions = getFretboardPositions('C', 1)
 
-      // All positions should be on fret 1
+      // Should include both open strings (fret 0) and first fret positions
+      const openStringPositions = positions.filter(p => p.fret === 0)
+      const firstFretPositions = positions.filter(p => p.fret === 1)
+
+      expect(openStringPositions.length).toBeGreaterThan(0)
+      expect(firstFretPositions.length).toBeGreaterThan(0)
+
+      // All positions should be fret 0 or 1
       for (const position of positions) {
-        expect(position.fret).toBe(1)
+        expect([0, 1]).toContain(position.fret)
       }
     })
   })

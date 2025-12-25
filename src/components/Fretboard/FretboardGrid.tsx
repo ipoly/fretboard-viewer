@@ -149,7 +149,6 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
                 key={`note-${position.string}-${position.fret}`}
                 position={position}
                 displayMode={displayMode}
-                gridManager={gridManager}
               />
             ))}
         </div>
@@ -181,7 +180,6 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
                 key={`note-${position.string}-${position.fret}`}
                 position={position}
                 displayMode={displayMode}
-                gridManager={gridManager}
               />
             ))}
         </div>

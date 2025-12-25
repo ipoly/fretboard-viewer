@@ -41,8 +41,8 @@ export function getFretboardPositions(selectedKey: MusicalKey, maxFrets: number 
 
   // Iterate through each string
   for (let stringNum = 0; stringNum < STANDARD_TUNING.length; stringNum++) {
-    // Iterate through each fret on this string (starting from fret 1, excluding open strings)
-    for (let fret = 1; fret <= maxFrets; fret++) {
+    // Iterate through each fret on this string (starting from fret 0 to include open strings)
+    for (let fret = 0; fret <= maxFrets; fret++) {
       const note = getNoteAtPosition(stringNum, fret)
       const scaleDegree = getScaleDegree(note, scale)
       const inScale = isNoteInScale(note, scale)
