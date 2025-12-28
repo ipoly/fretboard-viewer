@@ -77,6 +77,9 @@ const markerWrapperStyles = css`
 /**
  * MarkerWrapper component - wraps note markers in an invisible container
  * that fills the entire grid cell and provides interaction area
+ *
+ * UNIFIED PROCESSING: All fret positions (including open strings at fret 0)
+ * use the same grid coordinate mapping and wrapper system for consistency.
  */
 const MarkerWrapper: React.FC<MarkerWrapperProps> = React.memo(({
   position,

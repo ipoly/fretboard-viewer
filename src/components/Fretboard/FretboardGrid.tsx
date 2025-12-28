@@ -247,25 +247,25 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
         onKeyDown={handleKeyDown}
         aria-describedby="fretboard-instructions"
       >
-        {/* Fret lines (starting from fret 0) */}
+        {/* Fret lines - unified processing for all frets (0 to fretCount) */}
         {Array.from({ length: fretCount + 1 }, (_, fret) => (
           <div
             key={`fret-${fret}`}
             css={fretLineStyles}
-            style={{ gridColumn: fret + 1 } as React.CSSProperties} // fret 0 = column 1, fret 1 = column 2, etc.
+            style={{ gridColumn: fret + 1 } as React.CSSProperties} // Unified mapping: fret 0 = column 1, fret 1 = column 2, etc.
             data-fret-number={fret}
             role="presentation"
             aria-hidden="true"
           />
         ))}
 
-        {/* String lines */}
+        {/* String lines - unified processing for all strings using 8-row system */}
         {STANDARD_TUNING.map((_, stringIndex) => (
           <div
             key={`string-${stringIndex}`}
             css={stringLineStyles}
             data-string={stringIndex}
-            style={{ gridRow: stringIndex + 2 } as React.CSSProperties} /* stringIndex + 2 for 8-row system with placeholder */
+            style={{ gridRow: stringIndex + 2 } as React.CSSProperties} /* Unified mapping: stringIndex + 2 for 8-row system with placeholder rows */
             role="presentation"
             aria-hidden="true"
           />

@@ -88,7 +88,7 @@ describe('Backward Compatibility Tests', () => {
       )
 
       // Should find note elements with note names
-      const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
       expect(noteElements.length).toBeGreaterThan(0)
 
       // Check that some note names are displayed
@@ -108,7 +108,7 @@ describe('Backward Compatibility Tests', () => {
       )
 
       // Should find degree elements with scale degrees
-      const degreeElements = container.querySelectorAll('.note-marker, .open-string-marker')
+      const degreeElements = container.querySelectorAll('.note-marker') // Unified class for all markers
       expect(degreeElements.length).toBeGreaterThan(0)
 
       // Check that some scale degrees are displayed
@@ -221,7 +221,7 @@ describe('Backward Compatibility Tests', () => {
       )
 
       // Note positions should have proper roles and labels
-      const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
 
       for (const element of noteElements) {
         expect(element).toHaveAttribute('role', 'button')
@@ -300,7 +300,7 @@ describe('Backward Compatibility Tests', () => {
         />
       )
 
-      const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
       expect(noteElements.length).toBeGreaterThan(0)
 
       // Test keyboard interaction on first note element
@@ -387,7 +387,7 @@ describe('Backward Compatibility Tests', () => {
       // Verify expected DOM structure for testing
       expect(container.querySelector('[role="application"]')).toBeInTheDocument()
       expect(container.querySelector('#fretboard-instructions')).toBeInTheDocument()
-      expect(container.querySelectorAll('.note-marker, .open-string-marker').length).toBeGreaterThan(0)
+      expect(container.querySelectorAll('.note-marker').length).toBeGreaterThan(0) // Unified class for all markers
     })
 
     it('should work with mocked environments', () => {
@@ -435,7 +435,7 @@ describe('Backward Compatibility Tests', () => {
       expect(stringLines.length).toBeGreaterThan(0)
 
       // Should have note markers
-      const noteMarkers = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteMarkers = container.querySelectorAll('.note-marker') // Unified class for all markers
       expect(noteMarkers.length).toBeGreaterThan(0)
     })
 
@@ -466,7 +466,7 @@ describe('Backward Compatibility Tests', () => {
         />
       )
 
-      const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
 
       // Group elements by scale degree
       const elementsByDegree = new Map<string, HTMLElement[]>()

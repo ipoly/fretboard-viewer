@@ -139,7 +139,7 @@ describe('Responsive Grid Adaptation Tests', () => {
       )
 
       // Should have note markers regardless of screen size
-      const noteMarkers = container.querySelectorAll('.note-marker, .open-string-marker')
+      const noteMarkers = container.querySelectorAll('.note-marker') // Unified class for all markers
       expect(noteMarkers.length).toBeGreaterThan(0)
 
       // Should maintain grid structure

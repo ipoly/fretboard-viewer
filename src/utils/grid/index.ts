@@ -10,9 +10,7 @@ export enum GridLayers {
   FRET_LINES = 1,           // 品丝 - 最底层
   STRING_LINES = 2,         // 弦线 - 第二层
   MARKER_WRAPPER = 3,       // 包裹元素 - 第三层
-  NOTE_MARKERS = 4,         // 音符标记 - 第四层
-  OPEN_STRING_MASK = 5,     // 空弦遮罩层 - 第五层
-  OPEN_STRING_MARKERS = 6   // 空弦标记 - 最顶层
+  NOTE_MARKERS = 4,         // 音符标记 - 最顶层（统一处理所有标记）
 }
 
 /**
@@ -47,15 +45,12 @@ export class LayerManager {
         case 'string-lines': return GridLayers.STRING_LINES;
         case 'marker-wrapper': return GridLayers.MARKER_WRAPPER;
         case 'note-markers': return GridLayers.NOTE_MARKERS;
-        case 'open-string-mask': return GridLayers.OPEN_STRING_MASK;
-        case 'open-string-markers': return GridLayers.OPEN_STRING_MARKERS;
       }
     }
 
     // Check by class name
     if (element.classList.contains('marker-wrapper')) return GridLayers.MARKER_WRAPPER;
     if (element.classList.contains('note-marker')) return GridLayers.NOTE_MARKERS;
-    if (element.classList.contains('open-string-marker')) return GridLayers.OPEN_STRING_MARKERS;
 
     return null;
   }
@@ -68,16 +63,12 @@ export class LayerManager {
     const stringLines = container.querySelectorAll('[data-layer="string-lines"]');
     const markerWrappers = container.querySelectorAll('[data-layer="marker-wrapper"]');
     const noteMarkers = container.querySelectorAll('[data-layer="note-markers"]');
-    const openStringMask = container.querySelectorAll('[data-layer="open-string-mask"]');
-    const openStringMarkers = container.querySelectorAll('[data-layer="open-string-markers"]');
 
     // Enforce z-index values
     fretLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.FRET_LINES.toString());
     stringLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.STRING_LINES.toString());
     markerWrappers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.MARKER_WRAPPER.toString());
     noteMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.NOTE_MARKERS.toString());
-    openStringMask.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MASK.toString());
-    openStringMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MARKERS.toString());
   }
 
   /**
@@ -88,9 +79,7 @@ export class LayerManager {
       'Fret Lines (底层)': GridLayers.FRET_LINES,
       'String Lines': GridLayers.STRING_LINES,
       'Marker Wrapper': GridLayers.MARKER_WRAPPER,
-      'Note Markers': GridLayers.NOTE_MARKERS,
-      'Open String Mask': GridLayers.OPEN_STRING_MASK,
-      'Open String Markers (顶层)': GridLayers.OPEN_STRING_MARKERS
+      'Note Markers (顶层)': GridLayers.NOTE_MARKERS,
     };
   }
 }
@@ -149,11 +138,6 @@ export function stringToGridRow(stringIndex: number): number {
 export function fretToGridColumn(fretNumber: number): number {
   return fretNumber + 1; // 0-based fret -> 1-based grid column (open string = column 1, fret 1 = column 2, etc.)
 }
-
-/**
- * Get the open string column position (always column 1)
- */
-export const OPEN_STRING_COLUMN = 1;
 
 /**
  * Get the top placeholder row position (always row 1)
@@ -250,21 +234,7 @@ export function getMarkerWrapperPosition(stringIndex: number, fretNumber: number
 }
 
 /**
- * Get grid position for an open string marker
- *
- * @param stringIndex - String index (0-based)
- * @returns Grid position configuration
- */
-export function getOpenStringMarkerPosition(stringIndex: number): GridPosition {
-  return {
-    column: OPEN_STRING_COLUMN, // 固定在第一列
-    row: stringToGridRow(stringIndex),
-    layer: GridLayers.OPEN_STRING_MARKERS
-  };
-}
-
-/**
- * Get grid position for a regular note marker
+ * Get grid position for a note marker (unified for all fret positions)
  *
  * @param stringIndex - String index (0-based)
  * @param fretNumber - Fret number (1-based for fretted notes)

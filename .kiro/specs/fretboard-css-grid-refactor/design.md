@@ -180,7 +180,7 @@ interface GridElement {
   gridColumn: number;
   gridRow: number;
   zIndex: number;
-  element: 'fret-line' | 'string-line' | 'note-marker' | 'open-string-marker';
+  element: 'fret-line' | 'string-line' | 'note-marker';
 }
 
 // 品丝定位

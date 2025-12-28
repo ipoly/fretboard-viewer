@@ -11,11 +11,9 @@ import {
   GridDimensions,
   GridLayers,
   MarkerWrapperConfig,
-  OPEN_STRING_COLUMN,
   calculateGridDimensions,
   getFretLinePosition,
   getStringLinePosition,
-  getOpenStringMarkerPosition,
   getNoteMarkerPosition,
   getMarkerWrapperPosition,
   getTopPlaceholderPosition,
@@ -26,7 +24,7 @@ import {
 /**
  * Grid element type definitions
  */
-export type GridElementType = 'fret-line' | 'string-line' | 'note-marker' | 'open-string-marker' | 'open-string-mask' | 'marker-wrapper' | 'placeholder-row';
+export type GridElementType = 'fret-line' | 'string-line' | 'note-marker' | 'marker-wrapper' | 'placeholder-row';
 
 /**
  * Complete grid element configuration
@@ -90,16 +88,6 @@ export class FretboardGridManager {
       data: { type: 'bottom' }
     });
 
-    // Add open string mask
-    elements.push({
-      type: 'open-string-mask',
-      position: {
-        column: OPEN_STRING_COLUMN,
-        row: 2, // Start from row 2 (first string row), will span to row 7
-        layer: GridLayers.OPEN_STRING_MASK
-      }
-    });
-
     // Add fret lines (starting from fret 1)
     for (let fret = 1; fret <= this.fretCount; fret++) {
       elements.push({
@@ -137,13 +125,10 @@ export class FretboardGridManager {
    * Convert FretPosition to GridElement with marker wrapper support
    */
   fretPositionToGridElement(position: FretPosition): GridElement {
-    const isOpenString = position.fret === 0;
-
+    // Unified processing for all markers (including open strings)
     return {
-      type: isOpenString ? 'open-string-marker' : 'note-marker',
-      position: isOpenString
-        ? getOpenStringMarkerPosition(position.string)
-        : getNoteMarkerPosition(position.string, position.fret),
+      type: 'note-marker', // Unified type for all markers (including open strings)
+      position: getNoteMarkerPosition(position.string, position.fret), // Unified positioning
       data: position
     };
   }
@@ -222,22 +207,6 @@ export class FretboardGridManager {
           gridColumn: element.position.column,
           gridRow: element.position.row,
           zIndex: element.position.layer
-        };
-
-      case 'open-string-marker':
-        // Direct CSS Grid positioning with sticky behavior
-        return {
-          gridRow: element.position.row,
-          zIndex: element.position.layer,
-          // grid-column: 1 and position: sticky are handled by CSS class
-        };
-
-      case 'open-string-mask':
-        return {
-          ...baseStyles,
-          gridRow: '2 / 8', // Span from row 2 (first string) to row 7 (last string) + 1
-          position: 'sticky',
-          left: 0
         };
 
       case 'placeholder-row':

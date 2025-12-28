@@ -23,15 +23,11 @@ describe('Layer Management System', () => {
       expect(GridLayers.STRING_LINES).toBe(2)
       expect(GridLayers.MARKER_WRAPPER).toBe(3)
       expect(GridLayers.NOTE_MARKERS).toBe(4)
-      expect(GridLayers.OPEN_STRING_MASK).toBe(5)
-      expect(GridLayers.OPEN_STRING_MARKERS).toBe(6)
 
       // Verify ascending order
       expect(GridLayers.FRET_LINES).toBeLessThan(GridLayers.STRING_LINES)
       expect(GridLayers.STRING_LINES).toBeLessThan(GridLayers.MARKER_WRAPPER)
       expect(GridLayers.MARKER_WRAPPER).toBeLessThan(GridLayers.NOTE_MARKERS)
-      expect(GridLayers.NOTE_MARKERS).toBeLessThan(GridLayers.OPEN_STRING_MASK)
-      expect(GridLayers.OPEN_STRING_MASK).toBeLessThan(GridLayers.OPEN_STRING_MARKERS)
     })
   })
 
@@ -54,11 +50,8 @@ describe('Layer Management System', () => {
       noteMarker.classList.add('note-marker')
       noteMarker.style.zIndex = GridLayers.NOTE_MARKERS.toString()
 
-      const openStringMarker = document.createElement('div')
-      openStringMarker.classList.add('open-string-marker')
-      openStringMarker.style.zIndex = GridLayers.OPEN_STRING_MARKERS.toString()
-
-      const elements = [fretLine, stringLine, markerWrapper, noteMarker, openStringMarker]
+      // Note: open-string-marker is now unified with note-marker
+      const elements = [fretLine, stringLine, markerWrapper, noteMarker]
 
       expect(LayerManager.validateLayerOrder(elements)).toBe(true)
     })
@@ -94,20 +87,12 @@ describe('Layer Management System', () => {
       noteMarker.dataset.layer = 'note-markers'
       noteMarker.style.zIndex = '30' // Wrong
 
-      const openStringMask = document.createElement('div')
-      openStringMask.dataset.layer = 'open-string-mask'
-      openStringMask.style.zIndex = '40' // Wrong
-
-      const openStringMarker = document.createElement('div')
-      openStringMarker.dataset.layer = 'open-string-markers'
-      openStringMarker.style.zIndex = '50' // Wrong
+      // Note: open-string-mask is now unified with note-marker
 
       mockContainer.appendChild(fretLine)
       mockContainer.appendChild(stringLine)
       mockContainer.appendChild(markerWrapper)
       mockContainer.appendChild(noteMarker)
-      mockContainer.appendChild(openStringMask)
-      mockContainer.appendChild(openStringMarker)
 
       // Enforce correct layer order
       LayerManager.enforceLayerOrder(mockContainer)
@@ -117,8 +102,6 @@ describe('Layer Management System', () => {
       expect(stringLine.style.zIndex).toBe(GridLayers.STRING_LINES.toString())
       expect(markerWrapper.style.zIndex).toBe(GridLayers.MARKER_WRAPPER.toString())
       expect(noteMarker.style.zIndex).toBe(GridLayers.NOTE_MARKERS.toString())
-      expect(openStringMask.style.zIndex).toBe(GridLayers.OPEN_STRING_MASK.toString())
-      expect(openStringMarker.style.zIndex).toBe(GridLayers.OPEN_STRING_MARKERS.toString())
     })
   })
 
@@ -130,9 +113,7 @@ describe('Layer Management System', () => {
         'Fret Lines (底层)': GridLayers.FRET_LINES,
         'String Lines': GridLayers.STRING_LINES,
         'Marker Wrapper': GridLayers.MARKER_WRAPPER,
-        'Note Markers': GridLayers.NOTE_MARKERS,
-        'Open String Mask': GridLayers.OPEN_STRING_MASK,
-        'Open String Markers (顶层)': GridLayers.OPEN_STRING_MARKERS
+        'Note Markers (顶层)': GridLayers.NOTE_MARKERS,
       })
     })
   })
@@ -156,12 +137,12 @@ describe('Layer Management System', () => {
       expect(GridLayers.NOTE_MARKERS).toBeGreaterThan(GridLayers.MARKER_WRAPPER)
     })
 
-    it('should ensure open string markers are at the top layer (Requirement 5.4)', () => {
-      expect(GridLayers.OPEN_STRING_MARKERS).toBe(6)
+    it('should ensure note markers are at the top layer (Requirement 5.4)', () => {
+      expect(GridLayers.NOTE_MARKERS).toBe(4)
 
       // Verify it's the highest layer
       const allLayers = Object.values(GridLayers).filter(v => typeof v === 'number') as number[]
-      expect(GridLayers.OPEN_STRING_MARKERS).toBe(Math.max(...allLayers))
+      expect(GridLayers.NOTE_MARKERS).toBe(Math.max(...allLayers))
     })
 
     it('should ensure all elements display correctly without being obscured (Requirement 5.6)', () => {
@@ -171,8 +152,6 @@ describe('Layer Management System', () => {
         GridLayers.STRING_LINES,
         GridLayers.MARKER_WRAPPER,
         GridLayers.NOTE_MARKERS,
-        GridLayers.OPEN_STRING_MASK,
-        GridLayers.OPEN_STRING_MARKERS
       ]
 
       // Each layer should be higher than the previous

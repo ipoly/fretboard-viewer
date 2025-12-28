@@ -6,13 +6,11 @@ import { describe, it, expect } from 'vitest';
 import {
   stringToGridRow,
   fretToGridColumn,
-  OPEN_STRING_COLUMN,
   TOP_PLACEHOLDER_ROW,
   BOTTOM_PLACEHOLDER_ROW,
   calculateGridDimensions,
   getFretLinePosition,
   getStringLinePosition,
-  getOpenStringMarkerPosition,
   getNoteMarkerPosition,
   getMarkerWrapperPosition,
   getTopPlaceholderPosition,
@@ -33,10 +31,6 @@ describe('Grid Coordinate Mapping', () => {
     expect(fretToGridColumn(1)).toBe(2); // 1st fret -> column 2
     expect(fretToGridColumn(2)).toBe(3); // 2nd fret -> column 3
     expect(fretToGridColumn(12)).toBe(13); // 12th fret -> column 13
-  });
-
-  it('should have open string column as 1', () => {
-    expect(OPEN_STRING_COLUMN).toBe(1);
   });
 });
 
@@ -65,11 +59,11 @@ describe('Grid Positions', () => {
     expect(position.layer).toBe(GridLayers.STRING_LINES);
   });
 
-  it('should get open string marker position correctly', () => {
-    const position = getOpenStringMarkerPosition(1);
-    expect(position.column).toBe(OPEN_STRING_COLUMN);
+  it('should get note marker position correctly for open strings', () => {
+    const position = getNoteMarkerPosition(1, 0); // Open string (fret 0)
+    expect(position.column).toBe(1); // Unified: fret 0 -> column 1
     expect(position.row).toBe(3); // 2nd string -> row 3 (with top placeholder)
-    expect(position.layer).toBe(GridLayers.OPEN_STRING_MARKERS);
+    expect(position.layer).toBe(GridLayers.NOTE_MARKERS); // Unified layer for all markers
   });
 
   it('should get note marker position correctly', () => {
@@ -181,8 +175,8 @@ describe('FretboardGridManager', () => {
     };
 
     const openElement = manager.fretPositionToGridElement(openNote);
-    expect(openElement.type).toBe('open-string-marker');
-    expect(openElement.position.column).toBe(OPEN_STRING_COLUMN);
+    expect(openElement.type).toBe('note-marker'); // Unified type for all markers
+    expect(openElement.position.column).toBe(1); // Unified: fret 0 -> column 1
     expect(openElement.position.row).toBe(3); // 2nd string -> row 3 (with top placeholder)
   });
 

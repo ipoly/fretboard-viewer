@@ -11,9 +11,7 @@ const GridLayers = {
   FRET_LINES: 1,           // 品丝 - 最底层
   STRING_LINES: 2,         // 弦线 - 第二层
   MARKER_WRAPPER: 3,       // 包裹元素 - 第三层
-  NOTE_MARKERS: 4,         // 音符标记 - 第四层
-  OPEN_STRING_MASK: 5,     // 空弦遮罩层 - 第五层
-  OPEN_STRING_MARKERS: 6   // 空弦标记 - 最顶层
+  NOTE_MARKERS: 4,         // 音符标记 - 最顶层（统一处理所有标记）
 } as const;
 
 /**
@@ -254,89 +252,6 @@ export const markerWrapperStyles = css`
 `;
 
 /**
- * Open string mask layer styles with optimized responsive design
- */
-export const openStringMaskStyles = css`
-  grid-column: 1;
-  grid-row: 2 / 8; /* Span from row 2 (first string) to row 7 (last string) + 1 */
-  z-index: ${GridLayers.OPEN_STRING_MASK};
-
-  position: sticky;
-  left: 0;
-  align-self: stretch;
-  height: 100%;
-
-  /* Background matching fretboard */
-  background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-
-  /* Responsive border */
-  @media (max-width: 768px) {
-    border-right-width: 0.5px;
-  }
-
-  /* Optimized open string number pseudo-element */
-  &::before {
-    content: "0";
-    position: absolute;
-    top: calc(-1 * var(--string-height) / 2 - 0.5em);
-    right: 1.5px;
-    transform: translateX(50%);
-
-    font-size: calc(var(--string-height) * 0.32);
-    font-weight: bold;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    pointer-events: auto;
-
-    /* Responsive font size adjustments */
-    @media (max-width: 1024px) {
-      font-size: 14px;
-    }
-
-    @media (max-width: 768px) {
-      font-size: 12px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-    }
-
-    @media (max-width: 480px) {
-      font-size: 10px;
-      font-weight: 600;
-    }
-  }
-
-  /* Optimized right fret pseudo-element */
-  &::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(to bottom, #FFD700, #FFA500, #FFD700);
-    border-radius: 1.5px;
-    pointer-events: auto;
-    box-shadow: 0 0 6px rgba(255, 215, 0, 0.6), 2px 0 8px rgba(0, 0, 0, 0.3);
-
-    /* Responsive fret width */
-    @media (max-width: 768px) {
-      width: 2px;
-      border-radius: 1px;
-      box-shadow: 0 0 4px rgba(255, 215, 0, 0.6), 1px 0 6px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 480px) {
-      width: 1.5px;
-      border-radius: 0.75px;
-      box-shadow: 0 0 3px rgba(255, 215, 0, 0.5), 1px 0 4px rgba(0, 0, 0, 0.3);
-    }
-  }
-`;
-
-/**
  * Base note marker styles with optimized responsive design
  */
 export const baseNoteMarkerStyles = css`
@@ -398,17 +313,4 @@ export const noteMarkerStyles = css`
   ${baseNoteMarkerStyles}
   z-index: ${GridLayers.NOTE_MARKERS};
   /* Grid positioning (gridRow and gridColumn) will be set via style prop */
-`;
-
-/**
- * Open string marker styles (with sticky positioning)
- * Uses direct CSS Grid positioning and sticky behavior
- */
-export const openStringMarkerStyles = css`
-  ${baseNoteMarkerStyles}
-  grid-column: 1; /* Always in first column */
-  position: sticky;
-  left: 0;
-  z-index: ${GridLayers.OPEN_STRING_MARKERS}; /* Highest layer */
-  /* gridRow will be set via style prop */
 `;

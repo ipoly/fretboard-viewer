@@ -111,7 +111,7 @@ The component works with existing tests:
 - ✅ Maintains consistent DOM structure for testing
 
 **Test Selectors:**
-- ✅ CSS classes (`.note-marker`, `.open-string-marker`) preserved
+- ✅ CSS classes (`.note-marker`) preserved - unified for all markers
 - ✅ Data attributes (`data-string`, `data-fret`, etc.) maintained
 - ✅ Role and ARIA attributes available for testing
 - ✅ DOM structure predictable and testable

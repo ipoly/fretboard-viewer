@@ -251,7 +251,7 @@ describe('FretboardGrid Display Consistency - Property Tests', () => {
           )
 
           // Get all note position elements (look for elements with CSS class names)
-          const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+          const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
 
           // Should have at least as many elements as expected positions
           // (might have more due to open strings)
@@ -366,7 +366,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     )
 
     // Should find note elements by their CSS class names
-    const noteElements = container.querySelectorAll('.note-marker, .open-string-marker')
+    const noteElements = container.querySelectorAll('.note-marker') // Unified class for all markers
     expect(noteElements.length).toBeGreaterThan(0)
 
     // Verify some expected notes are present in the DOM
@@ -383,7 +383,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     )
 
     // Should find degree elements by their CSS class names
-    const degreeElements = container.querySelectorAll('.note-marker, .open-string-marker')
+    const degreeElements = container.querySelectorAll('.note-marker') // Unified class for all markers
     expect(degreeElements.length).toBeGreaterThan(0)
 
     // Verify some expected degrees are present in the DOM
@@ -508,7 +508,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
 
     // Verify each wrapper contains a note marker
     wrapperElements.forEach(wrapper => {
-      const noteMarker = wrapper.querySelector('.note-marker, .open-string-marker')
+      const noteMarker = wrapper.querySelector('.note-marker') // Unified class for all markers
       expect(noteMarker).toBeInTheDocument()
 
       // Verify wrapper has correct grid positioning attributes
@@ -528,7 +528,7 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
     })
 
     // Verify note markers are centered within wrappers (no grid positioning on markers themselves)
-    const noteMarkers = container.querySelectorAll('.note-marker, .open-string-marker')
+    const noteMarkers = container.querySelectorAll('.note-marker') // Unified class for all markers
     noteMarkers.forEach(marker => {
       const markerElement = marker as HTMLElement
       // Note markers should not have grid positioning styles since that's handled by wrapper

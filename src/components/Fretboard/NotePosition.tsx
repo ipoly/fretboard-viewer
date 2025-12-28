@@ -70,21 +70,15 @@ const noteMarkerBaseStyles = css`
 `
 
 /**
- * Regular note marker styles (for fretted notes)
+ * Unified note marker styles for all fret positions (including open strings)
  * Grid positioning is now handled by MarkerWrapper
+ *
+ * OPTIMIZATION: Removed separate styling for open string vs fretted markers
+ * as they are functionally identical and use the same grid positioning system.
  */
-const regularNoteMarkerStyles = css`
+const noteMarkerStyles = css`
   ${noteMarkerBaseStyles}
   z-index: 4; /* Note markers layer - highest within wrapper */
-`
-
-/**
- * Open string marker styles
- * Grid positioning is now handled by MarkerWrapper
- */
-const openStringMarkerStyles = css`
-  ${noteMarkerBaseStyles}
-  z-index: 4; /* Note markers layer - same as regular markers within wrapper */
 `
 
 const NotePosition: React.FC<NotePositionProps> = React.memo(({
@@ -105,7 +99,7 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
     [scaleDegree]
   )
 
-  // Determine if this is an open string marker
+  // Determine if this is an open string marker (for accessibility labeling only)
   const isOpenString = fret === 0
 
   // Memoize keyboard handler
@@ -118,8 +112,8 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
 
   return (
     <div
-      css={isOpenString ? openStringMarkerStyles : regularNoteMarkerStyles}
-      className={isOpenString ? 'open-string-marker' : 'note-marker'}
+      css={noteMarkerStyles}
+      className="note-marker" // Unified class name for all markers
       style={{
         backgroundColor
       } as React.CSSProperties}
@@ -127,10 +121,11 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
       data-fret={fret}
       data-scale-degree={scaleDegree}
       data-note={note}
+      data-is-open-string={isOpenString} // Data attribute for styling/testing if needed
       role="button"
       tabIndex={0}
-      aria-label={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) on fret ${fret}`}
-      title={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) - Fret ${fret}`}
+      aria-label={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) on ${isOpenString ? 'open string' : `fret ${fret}`}`}
+      title={`${note} (${scaleDegree}${scaleDegree === 1 ? 'st' : scaleDegree === 2 ? 'nd' : scaleDegree === 3 ? 'rd' : 'th'} degree) - ${isOpenString ? 'Open string' : `Fret ${fret}`}`}
       onKeyDown={handleKeyDown}
     >
       {displayText}
