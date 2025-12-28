@@ -76,7 +76,7 @@ describe('Responsive Grid Adaptation Tests', () => {
     // Verify grid structure is maintained
     const computedStyle = window.getComputedStyle(fretboardGrid as Element)
     expect(computedStyle.display).toBe('grid')
-    expect(computedStyle.gridTemplateColumns).toContain('var(--open-string-width)')
+    expect(computedStyle.gridTemplateColumns).toContain('var(--fret-width)')
   })
 
   it('should render correctly on mobile (480px - 768px)', () => {
@@ -165,8 +165,8 @@ describe('Responsive Grid Adaptation Tests', () => {
     const computedStyle = window.getComputedStyle(fretboardGrid as Element)
 
     // Check that grid template uses CSS variables
-    expect(computedStyle.gridTemplateColumns).toContain('var(--open-string-width)')
     expect(computedStyle.gridTemplateColumns).toContain('var(--fret-width)')
+    expect(computedStyle.gridTemplateColumns).toContain('calc(var(--fret-count) + 1)')
     expect(computedStyle.gridTemplateRows).toContain('var(--string-height)')
   })
 

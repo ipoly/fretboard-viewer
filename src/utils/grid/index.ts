@@ -5,17 +5,19 @@
  * for the CSS Grid-based fretboard implementation.
  */
 
-// Grid layer z-index constants
+// Grid layer z-index constants - Enhanced for CSS Grid refactor
 export enum GridLayers {
   FRET_LINES = 1,           // 品丝 - 最底层
   STRING_LINES = 2,         // 弦线 - 第二层
-  NOTE_MARKERS = 3,         // 音符标记 - 第三层
-  OPEN_STRING_MASK = 4,     // 空弦遮罩层 - 第四层
-  OPEN_STRING_MARKERS = 5   // 空弦标记 - 最顶层
+  MARKER_WRAPPER = 3,       // 包裹元素 - 第三层
+  NOTE_MARKERS = 4,         // 音符标记 - 第四层
+  OPEN_STRING_MASK = 5,     // 空弦遮罩层 - 第五层
+  OPEN_STRING_MARKERS = 6   // 空弦标记 - 最顶层
 }
 
 /**
  * Layer management validation and enforcement
+ * Enhanced for CSS Grid refactor with marker wrapper support
  */
 export class LayerManager {
   /**
@@ -43,6 +45,7 @@ export class LayerManager {
       switch (element.dataset.layer) {
         case 'fret-lines': return GridLayers.FRET_LINES;
         case 'string-lines': return GridLayers.STRING_LINES;
+        case 'marker-wrapper': return GridLayers.MARKER_WRAPPER;
         case 'note-markers': return GridLayers.NOTE_MARKERS;
         case 'open-string-mask': return GridLayers.OPEN_STRING_MASK;
         case 'open-string-markers': return GridLayers.OPEN_STRING_MARKERS;
@@ -50,6 +53,7 @@ export class LayerManager {
     }
 
     // Check by class name
+    if (element.classList.contains('marker-wrapper')) return GridLayers.MARKER_WRAPPER;
     if (element.classList.contains('note-marker')) return GridLayers.NOTE_MARKERS;
     if (element.classList.contains('open-string-marker')) return GridLayers.OPEN_STRING_MARKERS;
 
@@ -62,6 +66,7 @@ export class LayerManager {
   static enforceLayerOrder(container: HTMLElement): void {
     const fretLines = container.querySelectorAll('[data-layer="fret-lines"]');
     const stringLines = container.querySelectorAll('[data-layer="string-lines"]');
+    const markerWrappers = container.querySelectorAll('[data-layer="marker-wrapper"]');
     const noteMarkers = container.querySelectorAll('[data-layer="note-markers"]');
     const openStringMask = container.querySelectorAll('[data-layer="open-string-mask"]');
     const openStringMarkers = container.querySelectorAll('[data-layer="open-string-markers"]');
@@ -69,6 +74,7 @@ export class LayerManager {
     // Enforce z-index values
     fretLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.FRET_LINES.toString());
     stringLines.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.STRING_LINES.toString());
+    markerWrappers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.MARKER_WRAPPER.toString());
     noteMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.NOTE_MARKERS.toString());
     openStringMask.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MASK.toString());
     openStringMarkers.forEach(el => (el as HTMLElement).style.zIndex = GridLayers.OPEN_STRING_MARKERS.toString());
@@ -81,6 +87,7 @@ export class LayerManager {
     return {
       'Fret Lines (底层)': GridLayers.FRET_LINES,
       'String Lines': GridLayers.STRING_LINES,
+      'Marker Wrapper': GridLayers.MARKER_WRAPPER,
       'Note Markers': GridLayers.NOTE_MARKERS,
       'Open String Mask': GridLayers.OPEN_STRING_MASK,
       'Open String Markers (顶层)': GridLayers.OPEN_STRING_MARKERS
@@ -103,6 +110,16 @@ export interface GridPosition {
   layer: number;        // z-index 层级
 }
 
+// Marker wrapper configuration interface
+export interface MarkerWrapperConfig {
+  width: '100%';
+  height: '100%';
+  display: 'flex';
+  alignItems: 'center';
+  justifyContent: 'center';
+  position: 'relative';
+}
+
 // Sticky column configuration
 export interface StickyColumnConfig {
   position: 'sticky';
@@ -113,13 +130,13 @@ export interface StickyColumnConfig {
 
 /**
  * Convert string index to grid row position
- * 弦号到网格行的映射 (1-based grid system)
+ * 弦号到网格行的映射 (1-based grid system with placeholder rows)
  *
  * @param stringIndex - 0-based string index (0 = high E, 5 = low E)
- * @returns 1-based grid row position
+ * @returns 1-based grid row position (row 1 = top placeholder, rows 2-7 = strings, row 8 = bottom placeholder)
  */
 export function stringToGridRow(stringIndex: number): number {
-  return stringIndex + 1; // 0-based string index -> 1-based grid row
+  return stringIndex + 2; // 0-based string index -> 1-based grid row + 1 for top placeholder row
 }
 
 /**
@@ -139,6 +156,16 @@ export function fretToGridColumn(fretNumber: number): number {
 export const OPEN_STRING_COLUMN = 1;
 
 /**
+ * Get the top placeholder row position (always row 1)
+ */
+export const TOP_PLACEHOLDER_ROW = 1;
+
+/**
+ * Get the bottom placeholder row position (always row 8)
+ */
+export const BOTTOM_PLACEHOLDER_ROW = 8;
+
+/**
  * Calculate grid dimensions based on fret count
  *
  * @param fretCount - Number of frets to display
@@ -147,7 +174,7 @@ export const OPEN_STRING_COLUMN = 1;
 export function calculateGridDimensions(fretCount: number): GridDimensions {
   return {
     columns: fretCount + 1, // +1 for open string column
-    rows: 6, // Standard guitar has 6 strings
+    rows: 8, // 6 strings + 2 placeholder rows (top and bottom)
     cellWidth: 'var(--fret-width)',
     cellHeight: 'var(--string-height)'
   };
@@ -162,7 +189,7 @@ export function calculateGridDimensions(fretCount: number): GridDimensions {
 export function getFretLinePosition(fretNumber: number): GridPosition {
   return {
     column: fretToGridColumn(fretNumber),
-    row: 1, // Will span all rows using CSS: 1 / -1
+    row: 2, // Start from row 2 (first string row), will span to row 7 using CSS: 2 / 8
     layer: GridLayers.FRET_LINES
   };
 }
@@ -175,9 +202,50 @@ export function getFretLinePosition(fretNumber: number): GridPosition {
  */
 export function getStringLinePosition(stringIndex: number): GridPosition {
   return {
-    column: 2, // Will span from column 2 to end using CSS: 2 / -1
+    column: 1, // Will span from column 1 to end using CSS: 1 / -1 (unified column handling)
     row: stringToGridRow(stringIndex),
     layer: GridLayers.STRING_LINES
+  };
+}
+
+/**
+ * Get grid position for top placeholder row
+ *
+ * @returns Grid position configuration for top placeholder
+ */
+export function getTopPlaceholderPosition(): GridPosition {
+  return {
+    column: 1, // Will span all columns using CSS: 1 / -1
+    row: TOP_PLACEHOLDER_ROW,
+    layer: GridLayers.STRING_LINES // Same layer as strings for now
+  };
+}
+
+/**
+ * Get grid position for bottom placeholder row
+ *
+ * @returns Grid position configuration for bottom placeholder
+ */
+export function getBottomPlaceholderPosition(): GridPosition {
+  return {
+    column: 1, // Will span all columns using CSS: 1 / -1
+    row: BOTTOM_PLACEHOLDER_ROW,
+    layer: GridLayers.STRING_LINES // Same layer as strings for now
+  };
+}
+
+/**
+ * Get grid position for a marker wrapper element
+ *
+ * @param stringIndex - String index (0-based)
+ * @param fretNumber - Fret number (0-based, 0 = open string)
+ * @returns Grid position configuration
+ */
+export function getMarkerWrapperPosition(stringIndex: number, fretNumber: number): GridPosition {
+  return {
+    column: fretToGridColumn(fretNumber),
+    row: stringToGridRow(stringIndex),
+    layer: GridLayers.MARKER_WRAPPER
   };
 }
 
@@ -231,7 +299,7 @@ export function getStickyColumnConfig(
 
 /**
  * Generate CSS custom properties for responsive grid sizing
- * Optimized with fewer breakpoints for better performance
+ * Enhanced with comprehensive responsive breakpoints and CSS variables
  *
  * @param breakpoint - Responsive breakpoint name
  * @returns CSS custom properties object
@@ -241,46 +309,49 @@ export function getResponsiveGridVariables(
 ) {
   const sizes = {
     desktop: {
-      openStringWidth: '85px',
-      fretWidth: '85px',
-      stringHeight: '52px',
+      fretWidth: '80px',
+      stringHeight: '50px',
       gridGap: '2px',
-      borderRadius: '8px'
+      borderRadius: '8px',
+      scrollbarHeight: '12px'
     },
     tablet: {
-      openStringWidth: '72px',
-      fretWidth: '72px',
-      stringHeight: '46px',
+      fretWidth: '70px',
+      stringHeight: '45px',
       gridGap: '1px',
-      borderRadius: '6px'
+      borderRadius: '6px',
+      scrollbarHeight: '10px'
     },
     mobile: {
-      openStringWidth: '56px',
-      fretWidth: '56px',
-      stringHeight: '38px',
+      fretWidth: '60px',
+      stringHeight: '40px',
       gridGap: '0px',
-      borderRadius: '4px'
+      borderRadius: '4px',
+      scrollbarHeight: '8px'
     },
     'small-mobile': {
-      openStringWidth: '48px',
-      fretWidth: '48px',
-      stringHeight: '34px',
+      fretWidth: '50px',
+      stringHeight: '35px',
       gridGap: '0px',
-      borderRadius: '3px'
+      borderRadius: '3px',
+      scrollbarHeight: '6px'
     }
   };
 
   const config = sizes[breakpoint];
 
   return {
-    '--open-string-width': config.openStringWidth,
     '--fret-width': config.fretWidth,
     '--string-height': config.stringHeight,
     '--grid-gap': config.gridGap,
-    '--border-radius': config.borderRadius
+    '--border-radius': config.borderRadius,
+    '--scrollbar-height': config.scrollbarHeight
   };
 }
 
 // Re-export everything from manager and styles for convenience
 export * from './manager';
 export * from './styles';
+
+// Export the new marker wrapper styles and placeholder styles specifically
+export { markerWrapperStyles, placeholderRowStyles } from './styles';

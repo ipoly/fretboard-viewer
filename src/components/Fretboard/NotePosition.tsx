@@ -2,7 +2,7 @@ import React from 'react'
 import { FretPosition, DisplayMode } from '../../types'
 import { SCALE_DEGREE_COLORS } from '../../utils/constants/music'
 import { css } from '@emotion/react'
-import { GridLayers } from '../../utils/grid'
+import { GridLayers, stringToGridRow, fretToGridColumn } from '../../utils/grid'
 
 interface NotePositionProps {
   position: FretPosition
@@ -111,9 +111,9 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
   // Determine if this is an open string marker
   const isOpenString = fret === 0
 
-  // Calculate grid coordinates directly using the grid coordinate system
-  const gridRow = string + 1 // Convert 0-based string index to 1-based grid row
-  const gridColumn = isOpenString ? 1 : fret + 1 // Open string = column 1, frets = fret + 1
+  // Calculate grid coordinates using the grid utility functions
+  const gridRow = stringToGridRow(string) // Use utility function for consistent coordinate mapping
+  const gridColumn = isOpenString ? 1 : fretToGridColumn(fret) // Open string = column 1, frets use utility function
 
   // Memoize keyboard handler
   const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {

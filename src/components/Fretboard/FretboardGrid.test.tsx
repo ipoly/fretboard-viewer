@@ -434,8 +434,8 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
 
     // Check that the grid template columns uses CSS variables
     const gridTemplateColumns = computedStyle.gridTemplateColumns
-    expect(gridTemplateColumns).toContain('var(--open-string-width)')
     expect(gridTemplateColumns).toContain('var(--fret-width)')
+    expect(gridTemplateColumns).toContain('calc(var(--fret-count) + 1)')
 
     // Check that the grid template rows uses CSS variables
     const gridTemplateRows = computedStyle.gridTemplateRows

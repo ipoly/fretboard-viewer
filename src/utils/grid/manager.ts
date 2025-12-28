@@ -10,19 +10,23 @@ import {
   GridPosition,
   GridDimensions,
   GridLayers,
+  MarkerWrapperConfig,
   OPEN_STRING_COLUMN,
   calculateGridDimensions,
   getFretLinePosition,
   getStringLinePosition,
   getOpenStringMarkerPosition,
   getNoteMarkerPosition,
+  getMarkerWrapperPosition,
+  getTopPlaceholderPosition,
+  getBottomPlaceholderPosition,
   getStickyColumnConfig
 } from './index';
 
 /**
  * Grid element type definitions
  */
-export type GridElementType = 'fret-line' | 'string-line' | 'note-marker' | 'open-string-marker' | 'open-string-mask';
+export type GridElementType = 'fret-line' | 'string-line' | 'note-marker' | 'open-string-marker' | 'open-string-mask' | 'marker-wrapper' | 'placeholder-row';
 
 /**
  * Complete grid element configuration
@@ -73,12 +77,25 @@ export class FretboardGridManager {
   private generateAllElements(): GridElement[] {
     const elements: GridElement[] = [];
 
+    // Add placeholder rows
+    elements.push({
+      type: 'placeholder-row',
+      position: getTopPlaceholderPosition(),
+      data: { type: 'top' }
+    });
+
+    elements.push({
+      type: 'placeholder-row',
+      position: getBottomPlaceholderPosition(),
+      data: { type: 'bottom' }
+    });
+
     // Add open string mask
     elements.push({
       type: 'open-string-mask',
       position: {
         column: OPEN_STRING_COLUMN,
-        row: 1, // Will span all rows
+        row: 2, // Start from row 2 (first string row), will span to row 7
         layer: GridLayers.OPEN_STRING_MASK
       }
     });
@@ -117,7 +134,7 @@ export class FretboardGridManager {
   }
 
   /**
-   * Convert FretPosition to GridElement
+   * Convert FretPosition to GridElement with marker wrapper support
    */
   fretPositionToGridElement(position: FretPosition): GridElement {
     const isOpenString = position.fret === 0;
@@ -132,15 +149,33 @@ export class FretboardGridManager {
   }
 
   /**
-   * Convert multiple FretPositions to GridElements
+   * Convert FretPosition to marker wrapper GridElement
+   */
+  fretPositionToMarkerWrapperElement(position: FretPosition): GridElement {
+    return {
+      type: 'marker-wrapper',
+      position: getMarkerWrapperPosition(position.string, position.fret),
+      data: position
+    };
+  }
+
+  /**
+   * Convert multiple FretPositions to GridElements with marker wrapper support
    */
   fretPositionsToGridElements(positions: FretPosition[]): GridElement[] {
     return positions.map(pos => this.fretPositionToGridElement(pos));
   }
 
   /**
+   * Convert multiple FretPositions to marker wrapper GridElements
+   */
+  fretPositionsToMarkerWrapperElements(positions: FretPosition[]): GridElement[] {
+    return positions.map(pos => this.fretPositionToMarkerWrapperElement(pos));
+  }
+
+  /**
    * Get CSS style object for a grid element
-   * Updated to use direct CSS Grid positioning instead of CSS custom properties
+   * Enhanced with marker wrapper support
    */
   getElementStyles(element: GridElement): Record<string, any> {
     const baseStyles = {
@@ -155,17 +190,30 @@ export class FretboardGridManager {
         return {
           ...baseStyles,
           gridColumn: element.position.column,
-          gridRow: '1 / -1', // Span all rows
+          gridRow: '2 / 8', // Span from row 2 (first string) to row 7 (last string) + 1
         };
 
       case 'string-line':
         return {
           ...baseStyles,
-          gridColumn: '2 / -1', // Span from column 2 to end
+          gridColumn: '1 / -1', // Span from column 1 to end (updated for unified handling)
           gridRow: element.position.row,
           '--string-thickness': this.getStringThickness(element.data?.stringIndex || 0),
           '--string-gradient': this.getStringGradient(element.data?.stringIndex || 0),
           '--string-shadow': this.getStringShadow(element.data?.stringIndex || 0)
+        };
+
+      case 'marker-wrapper':
+        return {
+          gridColumn: element.position.column,
+          gridRow: element.position.row,
+          zIndex: element.position.layer,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative'
         };
 
       case 'note-marker':
@@ -187,9 +235,18 @@ export class FretboardGridManager {
       case 'open-string-mask':
         return {
           ...baseStyles,
-          gridRow: '1 / -1', // Span all rows
+          gridRow: '2 / 8', // Span from row 2 (first string) to row 7 (last string) + 1
           position: 'sticky',
           left: 0
+        };
+
+      case 'placeholder-row':
+        return {
+          ...baseStyles,
+          gridColumn: '1 / -1', // Span all columns
+          gridRow: element.position.row,
+          background: 'transparent',
+          height: '100%'
         };
 
       default:
@@ -276,5 +333,19 @@ export class FretboardGridManager {
    */
   getStickyConfig(layer: GridLayers, background?: string) {
     return getStickyColumnConfig(layer, background);
+  }
+
+  /**
+   * Get marker wrapper configuration
+   */
+  getMarkerWrapperConfig(): MarkerWrapperConfig {
+    return {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative'
+    };
   }
 }

@@ -26,12 +26,12 @@ const fretboardContainer = css`
   /* Simplified height calculation using CSS variables */
   height: calc(var(--string-height) * 8); /* Optimized: 6 strings + padding */
 
-  /* Simplified responsive padding using CSS variables */
-  padding: 0 calc(var(--open-string-width) * 0.2) calc(var(--string-height) * 0.3) calc(var(--open-string-width) * 0.2);
+  /* Simplified responsive padding using CSS variables - updated for unified column handling */
+  padding: 0 calc(var(--fret-width) * 0.2) calc(var(--string-height) * 0.3) calc(var(--fret-width) * 0.2);
 
   /* Touch device optimization */
   @media (hover: none) and (pointer: coarse) {
-    padding: 0 calc(var(--open-string-width) * 0.25) calc(var(--string-height) * 0.35) calc(var(--open-string-width) * 0.25);
+    padding: 0 calc(var(--fret-width) * 0.25) calc(var(--string-height) * 0.35) calc(var(--fret-width) * 0.25);
   }
 `
 

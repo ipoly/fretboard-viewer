@@ -10,67 +10,65 @@ import { css } from '@emotion/react';
 const GridLayers = {
   FRET_LINES: 1,           // 品丝 - 最底层
   STRING_LINES: 2,         // 弦线 - 第二层
-  NOTE_MARKERS: 3,         // 音符标记 - 第三层
-  OPEN_STRING_MASK: 4,     // 空弦遮罩层 - 第四层
-  OPEN_STRING_MARKERS: 5   // 空弦标记 - 最顶层
+  MARKER_WRAPPER: 3,       // 包裹元素 - 第三层
+  NOTE_MARKERS: 4,         // 音符标记 - 第四层
+  OPEN_STRING_MASK: 5,     // 空弦遮罩层 - 第五层
+  OPEN_STRING_MARKERS: 6   // 空弦标记 - 最顶层
 } as const;
 
 /**
  * Enhanced CSS custom properties for responsive grid variables
- * Optimized with fewer breakpoints and better performance
+ * Updated with comprehensive responsive breakpoints matching design specifications
  */
 export const responsiveGridVariables = css`
-  /* Desktop default values - optimized for performance */
-  --open-string-width: 85px;
-  --fret-width: 85px;
-  --string-height: 52px;
+  /* Desktop default values */
+  --fret-width: 80px;
+  --string-height: 50px;
   --grid-gap: 2px;
   --border-radius: 8px;
   --scrollbar-height: 12px;
 
-  /* Tablet (1024px and below) - consolidated breakpoint */
+  /* Tablet (1024px and below) */
   @media (max-width: 1024px) {
-    --open-string-width: 72px;
-    --fret-width: 72px;
-    --string-height: 46px;
+    --fret-width: 70px;
+    --string-height: 45px;
     --grid-gap: 1px;
     --border-radius: 6px;
     --scrollbar-height: 10px;
   }
 
-  /* Mobile (768px and below) - consolidated breakpoint */
+  /* Mobile (768px and below) */
   @media (max-width: 768px) {
-    --open-string-width: 56px;
-    --fret-width: 56px;
-    --string-height: 38px;
+    --fret-width: 60px;
+    --string-height: 40px;
     --grid-gap: 0px;
     --border-radius: 4px;
     --scrollbar-height: 8px;
   }
 
-  /* Small mobile (480px and below) - final breakpoint */
+  /* Small mobile (480px and below) */
   @media (max-width: 480px) {
-    --open-string-width: 48px;
-    --fret-width: 48px;
-    --string-height: 34px;
+    --fret-width: 50px;
+    --string-height: 35px;
     --grid-gap: 0px;
     --border-radius: 3px;
+    --scrollbar-height: 6px;
   }
 `;
 
 /**
- * Main fretboard grid container styles with optimized responsive design
+ * Main fretboard grid container styles with enhanced CSS Grid layout
  */
 export const fretboardGridStyles = css`
   ${responsiveGridVariables} /* Ensure CSS variables are available in grid container */
 
   display: grid;
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
-  grid-template-rows: repeat(6, var(--string-height));
+  grid-template-columns: repeat(calc(var(--fret-count) + 1), var(--fret-width));
+  grid-template-rows: repeat(8, var(--string-height)); /* 6 strings + 2 placeholder rows */
   gap: var(--grid-gap, 0px);
 
-  /* Optimized padding using CSS variables */
-  padding: var(--string-height) 0;
+  /* Key setting: prevent child elements from stretching */
+  align-items: start;
 
   /* Scroll settings */
   overflow-x: auto;
@@ -180,7 +178,7 @@ export const fretLineStyles = css`
 `;
 
 /**
- * String line styles
+ * String line styles - Updated for unified column handling
  */
 export const stringLineStyles = css`
   /* Grid positioning will be set via style prop */
@@ -218,11 +216,49 @@ export const stringLineStyles = css`
 `;
 
 /**
+ * Placeholder row styles for future functionality
+ */
+export const placeholderRowStyles = css`
+  z-index: ${GridLayers.STRING_LINES};
+
+  /* Invisible placeholder - no visual styling by default */
+  background: transparent;
+  border: none;
+  height: 100%;
+
+  /* Span all columns */
+  grid-column: 1 / -1;
+
+  /* For debugging - uncomment to see placeholder rows */
+  /* background: rgba(255, 0, 0, 0.1); */
+  /* border: 1px dashed rgba(255, 0, 0, 0.3); */
+`;
+
+/**
+ * Marker wrapper styles for note positioning
+ */
+export const markerWrapperStyles = css`
+  z-index: ${GridLayers.MARKER_WRAPPER};
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  /* Invisible container - no visual styling */
+  background: transparent;
+  border: none;
+  pointer-events: auto; /* Allow interaction for future features */
+`;
+
+/**
  * Open string mask layer styles with optimized responsive design
  */
 export const openStringMaskStyles = css`
   grid-column: 1;
-  grid-row: 1 / -1;
+  grid-row: 2 / 8; /* Span from row 2 (first string) to row 7 (last string) + 1 */
   z-index: ${GridLayers.OPEN_STRING_MASK};
 
   position: sticky;
