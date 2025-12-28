@@ -11,10 +11,11 @@
 ### 核心设计原则
 
 1. **网格优先**: 使用 CSS Grid 作为主要布局系统，替代像素计算
-2. **层级分离**: 通过 z-index 和网格层级管理不同元素的显示顺序
-3. **粘性定位**: 空弦列使用 sticky positioning 保持固定可见
-4. **响应式适配**: 网格系统自适应不同屏幕尺寸
-5. **向后兼容**: 保持现有组件接口和功能不变
+2. **统一处理**: 所有品格列（包括空弦）使用相同的处理方式，简化代码逻辑
+3. **层级分离**: 通过 z-index 和网格层级管理不同元素的显示顺序
+4. **包裹元素**: 音符标记使用不可见包裹元素，便于定位和交互
+5. **响应式适配**: 网格系统自适应不同屏幕尺寸
+6. **向后兼容**: 保持现有组件接口和功能不变
 
 ### 技术栈保持不变
 
@@ -26,9 +27,9 @@
 ### 新增技术要素
 
 - **CSS Grid Layout**: 主要布局系统
-- **CSS Sticky Positioning**: 空弦列固定定位
 - **CSS Custom Properties**: 动态网格尺寸控制
 - **CSS Layering**: z-index 层级管理系统
+- **Marker Wrapper**: 音符标记的包裹元素系统
 
 ## Components and Interfaces
 
@@ -48,7 +49,7 @@ interface FretboardGridProps {
 
 ```typescript
 interface GridDimensions {
-  columns: number;        // fretCount + 1 (包含空弦列)
+  columns: number;        // fretCount + 1 (包含空弦列，从品格 0 开始)
   rows: number;          // 6 (弦的数量)
   cellWidth: string;     // CSS Grid 列宽
   cellHeight: string;    // CSS Grid 行高
@@ -60,11 +61,13 @@ interface GridPosition {
   layer: number;        // z-index 层级
 }
 
-interface StickyColumnConfig {
-  position: 'sticky';
-  left: 0;
-  zIndex: number;
-  background: string;    // 与指板底色相同的背景
+interface MarkerWrapperConfig {
+  width: '100%';
+  height: '100%';
+  display: 'flex';
+  alignItems: 'center';
+  justifyContent: 'center';
+  position: 'relative';
 }
 ```
 
@@ -75,9 +78,9 @@ interface StickyColumnConfig {
 ```css
 .fretboard-grid {
   display: grid;
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
+  grid-template-columns: repeat(var(--fret-count-plus-one), var(--fret-width));
   grid-template-rows: repeat(6, var(--string-height));
-  align-items: start;    /* 防止元素拉伸，支持 sticky positioning */
+  align-items: start;
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -88,14 +91,13 @@ interface StickyColumnConfig {
 ```css
 :root {
   /* 桌面端 */
-  --open-string-width: 80px;
   --fret-width: 80px;
   --string-height: 50px;
+  --fret-count-plus-one: calc(var(--fret-count) + 1);
 }
 
 @media (max-width: 1024px) {
   :root {
-    --open-string-width: 70px;
     --fret-width: 70px;
     --string-height: 45px;
   }
@@ -103,7 +105,6 @@ interface StickyColumnConfig {
 
 @media (max-width: 768px) {
   :root {
-    --open-string-width: 60px;
     --fret-width: 60px;
     --string-height: 40px;
   }
@@ -111,7 +112,6 @@ interface StickyColumnConfig {
 
 @media (max-width: 480px) {
   :root {
-    --open-string-width: 50px;
     --fret-width: 50px;
     --string-height: 35px;
   }
@@ -145,7 +145,7 @@ const OPEN_STRING_COLUMN = 1;
 
 ```
 列:  1      2      3      4      5      6  ...
-    空弦   品格0   品格1   品格2   品格3   品格4 ...
+    品格0   品格1   品格2   品格3   品格4   品格5 ...
 行1  E弦(5)  ●      ●      ●      ●      ●
 行2  A弦(4)  ●      ●      ●      ●      ●
 行3  D弦(3)  ●      ●      ●      ●      ●
@@ -171,7 +171,7 @@ const OPEN_STRING_COLUMN = 1;
 
 - 第1弦第12品格的音符: gridRow=1, gridColumn=13
 - 第6弦第0品格的音符(空弦): gridRow=6, gridColumn=1
-- 第3弦空弦音符: gridRow=4, gridColumn=1 (粘性列)
+- 第3弦空弦音符: gridRow=4, gridColumn=1
 
 #### 网格元素定位
 
@@ -193,21 +193,13 @@ const fretLinePosition = (fretNumber: number): GridElement => ({
 
 // 弦线定位
 const stringLinePosition = (stringIndex: number): GridElement => ({
-  gridColumn: 2, // span from column 2 to end: 2 / -1
+  gridColumn: 1, // span from column 1 to end: 1 / -1
   gridRow: stringToGridRow(stringIndex),
   zIndex: 2,
   element: 'string-line'
 });
 
-// 空弦标记定位（包含空弦音符标记）
-const openStringMarkerPosition = (stringIndex: number): GridElement => ({
-  gridColumn: OPEN_STRING_COLUMN, // 固定在第一列
-  gridRow: stringToGridRow(stringIndex),
-  zIndex: 4, // 最高层级
-  element: 'open-string-marker'
-});
-
-// 普通音符标记定位（品格上的音符）
+// 音符标记定位（统一处理所有品格）
 const noteMarkerPosition = (stringIndex: number, fretNumber: number): GridElement => ({
   gridColumn: fretToGridColumn(fretNumber),
   gridRow: stringToGridRow(stringIndex),
@@ -216,16 +208,13 @@ const noteMarkerPosition = (stringIndex: number, fretNumber: number): GridElemen
 });
 ```
 
-**空弦音符标记的特殊处理：**
+**音符标记包裹元素的处理：**
 
 ```typescript
-// 使用 CSS 类名和独立遮罩层的渲染逻辑
+// 使用包裹元素的渲染逻辑
 const renderFretboard = () => {
   return (
     <div className="fretboard-grid">
-      {/* 独立的空弦遮罩层 */}
-      <div className="open-string-mask" />
-
       {/* 品丝 */}
       {Array.from({ length: fretCount }, (_, fret) => (
         <div
@@ -245,9 +234,9 @@ const renderFretboard = () => {
         />
       ))}
 
-      {/* 音符标记 */}
+      {/* 音符标记（包含包裹元素） */}
       {fretPositions.map(position => (
-        <NoteMarker
+        <MarkerWrapper
           key={`note-${position.string}-${position.fret}`}
           position={position}
           displayMode={displayMode}
@@ -257,29 +246,31 @@ const renderFretboard = () => {
   );
 };
 
-const NoteMarker = ({ position, displayMode }: { position: FretPosition, displayMode: DisplayMode }) => {
-  const isOpenString = position.fret === 0;
-
+const MarkerWrapper = ({ position, displayMode }: { position: FretPosition, displayMode: DisplayMode }) => {
   return (
     <div
-      className={isOpenString ? 'open-string-marker' : 'note-marker'}
+      className="marker-wrapper"
       data-string={position.string}
       data-fret={position.fret}
-      data-scale-degree={position.scaleDegree}
       style={{
-        '--note-color': getColorForScaleDegree(position.scaleDegree),
         '--string-row': position.string + 1,
-        '--note-column': isOpenString ? 1 : position.fret + 2
+        '--note-column': position.fret + 1
       } as React.CSSProperties}
     >
-      <span>
-        {displayMode === 'notes' ? position.note : position.scaleDegree}
-      </span>
+      <div
+        className="note-marker"
+        data-scale-degree={position.scaleDegree}
+        style={{
+          '--note-color': getColorForScaleDegree(position.scaleDegree)
+        } as React.CSSProperties}
+      >
+        <span>
+          {displayMode === 'notes' ? position.note : position.scaleDegree}
+        </span>
+      </div>
     </div>
   );
 };
-```
-
 ```
 
 ### 层级管理系统
@@ -290,29 +281,24 @@ const NoteMarker = ({ position, displayMode }: { position: FretPosition, display
 enum GridLayers {
   FRET_LINES = 1,           // 品丝 - 最底层
   STRING_LINES = 2,         // 弦线 - 第二层
-  NOTE_MARKERS = 3,         // 音符标记 - 第三层
-  OPEN_STRING_MASK = 4,     // 空弦遮罩层 - 第四层
-  OPEN_STRING_MARKERS = 5   // 空弦标记 - 最顶层
+  MARKER_WRAPPER = 3,       // 包裹元素 - 第三层
+  NOTE_MARKERS = 4          // 音符标记 - 最顶层
 }
 ```
 
-#### 粘性列配置
+#### 包裹元素配置
 
 ```typescript
-interface StickyColumnStyle {
-  position: 'sticky';
-  left: 0;
-  zIndex: GridLayers.OPEN_STRING_MARKERS;
-  background: 'transparent'; // 空弦标记本身不需要背景
-}
-
-interface OpenStringMaskStyle {
-  position: 'sticky';
-  left: 0;
-  zIndex: GridLayers.OPEN_STRING_MASK;
-  background: 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%)'; // 与指板底色相同
+interface MarkerWrapperStyle {
+  gridColumn: number;
+  gridRow: number;
+  zIndex: GridLayers.MARKER_WRAPPER;
   width: '100%';
   height: '100%';
+  display: 'flex';
+  alignItems: 'center';
+  justifyContent: 'center';
+  position: 'relative';
 }
 ```
 
@@ -325,7 +311,7 @@ interface OpenStringMaskStyle {
 ```css
 .fretboard-grid {
   display: grid;
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
+  grid-template-columns: repeat(var(--fret-count-plus-one), var(--fret-width));
   grid-template-rows: repeat(6, var(--string-height));
 
   /* 关键设置：防止子元素拉伸 */
@@ -366,7 +352,7 @@ interface OpenStringMaskStyle {
 
 ```css
 .string-line {
-  grid-column: 2 / -1; /* 从第二列开始到最后一列 */
+  grid-column: 1 / -1; /* 从第一列开始到最后一列 */
   grid-row: var(--string-row);
   z-index: 2;
 
@@ -402,59 +388,25 @@ interface OpenStringMaskStyle {
 }
 ```
 
-#### 音符标记样式
+#### 包裹元素和音符标记样式
 
 ```css
-.note-marker {
+/* 包裹元素样式 */
+.marker-wrapper {
   grid-column: var(--note-column);
-  grid-row: var(--note-row);
+  grid-row: var(--string-row);
   z-index: 3;
 
-  justify-self: center;
-  align-self: center;
-
-  /* 保持现有的音符标记样式 */
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-```
-
-#### 音符标记样式系统
-
-```css
-/* 独立的空弦遮罩层 */
-.open-string-mask {
-  grid-column: 1;
-  grid-row: 1 / -1; /* 跨越所有行 */
-  z-index: 4;
-
-  position: sticky;
-  left: 0;
-
-  /* 与指板底色相同的背景遮挡 */
-  background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #8B4513 100%);
-
-  /* 可选的分隔线 */
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-/* 统一的音符标记样式 */
-.note-marker,
-.open-string-marker {
-  grid-row: var(--string-row);
-  justify-self: center;
-  align-self: center;
-  z-index: 5; /* 统一层级，都在遮罩层之上 */
-
+/* 音符标记样式 */
+.note-marker {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -467,18 +419,7 @@ interface OpenStringMaskStyle {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   background: var(--note-color);
-}
-
-/* 普通音符标记 - 使用计算的列位置 */
-.note-marker {
-  grid-column: var(--note-column);
-}
-
-/* 空弦音符标记 - 唯一区别是粘性定位 */
-.open-string-marker {
-  grid-column: 1;
-  position: sticky;
-  left: 0;
+  z-index: 4;
 }
 ```
 
@@ -489,7 +430,7 @@ interface OpenStringMaskStyle {
 ```css
 .fret-numbers {
   display: grid;
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
+  grid-template-columns: repeat(var(--fret-count-plus-one), var(--fret-width));
   grid-template-rows: 30px; /* 固定高度 */
 
   /* 定位在指板上方 */
@@ -507,11 +448,6 @@ interface OpenStringMaskStyle {
   font-weight: bold;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-/* 空弦列的数字（显示 "0"） */
-.fret-number--open {
-  grid-column: 1;
 }
 ```
 
@@ -559,13 +495,12 @@ const noteGridPosition = {
   :root {
     --fret-width: 60px;
     --string-height: 40px;
-    --open-string-width: 60px;
   }
 }
 
 /* 网格自动适应新的变量值 */
 .fretboard-grid {
-  grid-template-columns: var(--open-string-width) repeat(var(--fret-count), var(--fret-width));
+  grid-template-columns: repeat(var(--fret-count-plus-one), var(--fret-width));
   grid-template-rows: repeat(6, var(--string-height));
 }
 ```
@@ -602,7 +537,6 @@ const noteGridPosition = {
   :root {
     --fret-width: 40px;
     --string-height: 30px;
-    --open-string-width: 40px;
   }
 }
 
@@ -611,7 +545,6 @@ const noteGridPosition = {
   :root {
     --fret-width: 100px;
     --string-height: 60px;
-    --open-string-width: 100px;
   }
 }
 ```
@@ -630,7 +563,7 @@ const noteGridPosition = {
 - 网格坐标计算函数的正确性
 - 响应式变量的正确应用
 - 层级系统的正确实现
-- 粘性定位的行为验证
+- 包裹元素的行为验证
 - 组件渲染与特定 props
 - 用户交互处理（点击、滚动、切换）
 - 错误边界行为
@@ -648,20 +581,20 @@ const noteGridPosition = {
 
 1. **Property 1 Test**: 生成随机品格数量，验证网格结构和架构一致性
 2. **Property 2 Test**: 生成随机弦号和品格号，验证网格坐标映射正确性
-3. **Property 3 Test**: 生成随机滚动状态，验证空弦粘性定位行为
-4. **Property 4 Test**: 生成随机元素组合，验证层级系统正确性
-5. **Property 5 Test**: 生成随机视口尺寸，验证响应式网格适配
-6. **Property 6 Test**: 生成随机功能调用，验证向后兼容性保证
-7. **Property 7 Test**: 生成随机渲染场景，验证性能优化效果
-8. **Property 8 Test**: 生成随机视觉状态，验证视觉一致性保持
-9. **Property 9 Test**: 分析代码度量，验证代码质量改进
+3. **Property 3 Test**: 生成随机元素组合，验证层级系统正确性
+4. **Property 4 Test**: 生成随机视口尺寸，验证响应式网格适配
+5. **Property 5 Test**: 生成随机功能调用，验证向后兼容性保证
+6. **Property 6 Test**: 生成随机渲染场景，验证性能优化效果
+7. **Property 7 Test**: 生成随机视觉状态，验证视觉一致性保持
+8. **Property 8 Test**: 分析代码度量，验证代码质量改进
+9. **Property 9 Test**: 生成随机包裹元素状态，验证包裹元素功能正确性
 
 ### 视觉回归测试
 
 - 与现有实现的像素级对比
 - 不同屏幕尺寸下的布局一致性
 - 滚动行为的正确性
-- 空弦标记的粘性行为
+- 包裹元素的交互行为
 
 ### 性能测试
 
@@ -695,11 +628,11 @@ const noteGridPosition = {
 2. 实现层级管理系统
 3. 测试功能一致性
 
-#### 阶段 3: 空弦粘性定位
+#### 阶段 3: 包裹元素实现
 
-1. 实现空弦列的粘性定位
-2. 添加背景遮挡效果
-3. 优化滚动体验
+1. 实现音符标记的包裹元素系统
+2. 添加交互区域和定位支持
+3. 优化用户体验
 
 #### 阶段 4: 性能优化和清理
 
@@ -743,42 +676,42 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
 
 ### Property 2: 网格坐标映射正确性
 
-*For any* 音符标记、弦线和品丝元素，它们的网格位置应该正确映射到对应的弦号和品格号，其中弦线和品丝从第二列开始，音符标记使用 (弦号+1, 品格号+1) 的坐标系统。
+*For any* 音符标记、弦线和品丝元素，它们的网格位置应该正确映射到对应的弦号和品格号，其中弦线从第一列开始，品丝从第二列开始，音符标记使用 (弦号+1, 品格号+1) 的坐标系统。
 **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 4.1, 4.2, 4.3**
 
-### Property 3: 空弦粘性定位行为
+### Property 3: 层级系统正确性
 
-*For any* 滚动状态下的指板，空弦标记应该始终位于网格第一列，使用 sticky positioning 保持在视口左侧可见，具有与指板相同的背景色，并且与对应弦行完美对齐。
-**Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.6**
-
-### Property 4: 层级系统正确性
-
-*For any* 指板元素集合，z-index 层级应该按照以下顺序递增：品丝(1) < 弦线(2) < 音符标记(3) < 空弦标记(4)，确保所有元素正确显示且不被遮挡。
+*For any* 指板元素集合，z-index 层级应该按照以下顺序递增：品丝(1) < 弦线(2) < 包裹元素(3) < 音符标记(4)，确保所有元素正确显示且不被遮挡。
 **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.6**
 
-### Property 5: 响应式网格适配
+### Property 4: 响应式网格适配
 
-*For any* 屏幕尺寸变化，网格单元格尺寸应该通过 CSS 变量正确调整，保持适当的比例关系，并且在小屏幕设备上进行优化调整。
-**Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5**
+*For any* 屏幕尺寸变化，网格单元格尺寸应该通过 CSS 变量正确调整，保持适当的比例关系，并且在小屏幕设备上进行优化调整，包裹元素应该正确填充网格单元格。
+**Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6**
 
-### Property 6: 向后兼容性保证
+### Property 5: 向后兼容性保证
 
 *For any* 现有功能和接口，重构后的组件应该保持相同的 props 接口、支持所有现有功能、维持相同的可访问性特性和键盘导航，并且与现有测试套件兼容。
 **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
 
-### Property 7: 性能优化效果
+### Property 6: 性能优化效果
 
 *For any* 渲染操作，重构后的组件应该减少 JavaScript 计算量，避免重复的位置计算，使用 CSS 变量优化样式计算，并且保持与现有实现相同或更好的渲染性能。
 **Validates: Requirements 7.2, 7.3, 7.4, 7.5**
 
-### Property 8: 视觉一致性保持
+### Property 7: 视觉一致性保持
 
 *For any* 视觉元素，重构后的指板应该保持与现有实现相同的弦线外观和纹理、品丝外观和位置、音符标记样式和颜色、整体布局和比例，以及滚动行为和交互体验。
 **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5**
 
-### Property 9: 代码质量改进
+### Property 8: 代码质量改进
 
-*For any* 代码度量，重构后的组件应该移除所有像素计算和复杂的响应式边距计算逻辑，使用声明式的 CSS Grid 属性，减少组件代码行数至少30%，并且提高代码可读性和维护性。
-**Validates: Requirements 9.2, 9.4, 9.5**
+*For any* 代码度量，重构后的组件应该移除所有像素计算和复杂的响应式边距计算逻辑，移除空弦列特殊处理逻辑，使用声明式的 CSS Grid 属性，减少组件代码行数至少30%，并且提高代码可读性和维护性。
+**Validates: Requirements 9.2, 9.3, 9.4, 9.5**
+
+### Property 9: 包裹元素功能正确性
+
+*For any* 音符标记，它应该被包裹在一个不可见的容器中，该容器填充整个网格单元格，提供完整的交互区域，音符标记在容器内居中对齐，便于未来添加交互功能。
+**Validates: Requirements 4.4, 4.5, 4.6, 4.7, 4.8**
 
 这个重构将显著简化代码库，提高性能，同时保持完全的功能和视觉一致性。通过使用现代 CSS Grid 技术，我们可以实现更清晰、更可维护的代码结构。
