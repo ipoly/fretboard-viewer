@@ -9,11 +9,12 @@
 - **CSS_Grid**: CSS 网格布局系统，允许二维布局控制
 - **Grid_Cell**: 网格中的单个单元格，由行和列交叉点定义
 - **Fret_Column**: 网格中代表品格的列
-- **String_Row**: 网格中代表弦的行
+- **String_Row**: 网格中代表弦的行（行2-7，对应6根弦）
+- **Placeholder_Row**: 网格中的占位行，为未来功能扩展预留空间（行1为顶部占位行，行8为底部占位行）
 - **Fret_Zero_Column**: 网格的第一列，对应空弦（品格 0），与其他品格列统一处理
 
 - **Grid_Layer**: 通过 z-index 控制的网格层级，允许元素堆叠
-- **Fretboard_Grid**: 重构后的指板网格组件
+- **Fretboard_Grid**: 重构后的指板网格组件，使用8行网格系统（6弦 + 2占位行）
 - **Position_Calculation**: 当前基于像素计算的定位方式
 - **Marker_Wrapper**: 记号元素的不可见包裹容器，填充整个网格单元格，便于定位和交互
 
@@ -27,12 +28,25 @@
 
 1. THE Fretboard_Grid SHALL 使用 CSS Grid 作为主要布局系统替代当前的像素计算方式
 2. THE Fretboard_Grid SHALL 定义网格列数等于品格数量加一（包含空弦列，从品格 0 开始）
-3. THE Fretboard_Grid SHALL 定义网格行数等于弦的数量（6行）
-4. THE Fretboard_Grid SHALL 对所有品格列（包括空弦列）使用统一的处理方式
-5. THE Fretboard_Grid SHALL 支持网格元素的层级堆叠通过 z-index 控制
-6. THE Fretboard_Grid SHALL 保持与现有实现相同的视觉外观和尺寸比例
+3. THE Fretboard_Grid SHALL 定义网格行数等于8行（6弦 + 2占位行，为未来功能扩展预留空间）
+4. THE Fretboard_Grid SHALL 使用占位行系统，其中行1为顶部占位行，行2-7为弦行，行8为底部占位行
+5. THE Fretboard_Grid SHALL 对所有品格列（包括空弦列）使用统一的处理方式
+6. THE Fretboard_Grid SHALL 支持网格元素的层级堆叠通过 z-index 控制
+7. THE Fretboard_Grid SHALL 保持与现有实现相同的视觉外观和尺寸比例
 
-### Requirement 2: 统一品格列处理
+### Requirement 2: 占位行系统设计
+
+**User Story:** 作为开发者，我希望网格系统包含占位行，为未来功能扩展（如品格数字显示、调音指示等）预留空间，同时保持清晰的坐标映射系统。
+
+#### Acceptance Criteria
+
+1. THE Fretboard_Grid SHALL 在网格顶部预留一行作为顶部占位行（行1）
+2. THE Fretboard_Grid SHALL 在网格底部预留一行作为底部占位行（行8）
+3. THE 占位行 SHALL 默认为不可见，不影响当前的视觉外观
+4. THE 占位行 SHALL 为未来功能扩展提供布局空间（如品格数字、调音指示器等）
+5. THE 坐标映射系统 SHALL 考虑占位行，使用 stringIndex + 2 映射弦到网格行
+
+### Requirement 3: 统一品格列处理
 
 **User Story:** 作为开发者，我希望所有品格列（包括空弦）都使用统一的处理方式，简化代码逻辑并提高一致性。
 
@@ -44,7 +58,7 @@
 4. THE 网格列索引 SHALL 直接对应品格号（第1列=品格0，第2列=品格1，以此类推）
 5. THE 统一处理方式 SHALL 简化代码逻辑，减少特殊情况处理
 
-### Requirement 3: 弦和品丝网格定位
+### Requirement 4: 弦和品丝网格定位
 
 **User Story:** 作为开发者，我希望弦和品丝能够通过简单的网格坐标定位，而不需要复杂的像素计算。
 
@@ -52,18 +66,19 @@
 
 1. THE 弦线 SHALL 从网格的第一列开始绘制（column 1 开始，对应品格 0）
 2. THE 品丝 SHALL 从网格的第二列开始绘制（column 2 开始，对应品格 1）
-3. THE 弦线 SHALL 使用 grid-row 属性定位到对应的弦行
+3. THE 弦线 SHALL 使用 grid-row 属性定位到对应的弦行（行2-7，使用 stringIndex + 2 映射）
 4. THE 品丝 SHALL 使用 grid-column 属性定位到对应的品格列
-5. THE 弦线和品丝 SHALL 通过 CSS Grid 自动对齐，无需手动像素调整
+5. THE 品丝 SHALL 跨越弦行区域（从行2到行7，即 grid-row: 2 / 8）
+6. THE 弦线和品丝 SHALL 通过 CSS Grid 自动对齐，无需手动像素调整
 
-### Requirement 4: 音符标记网格定位与包裹元素
+### Requirement 5: 音符标记网格定位与包裹元素
 
 **User Story:** 作为开发者，我希望音符标记能够通过弦号和品格号简单定位，并使用包裹元素便于未来的定位和交互功能扩展。
 
 #### Acceptance Criteria
 
 1. THE 音符标记 SHALL 使用网格坐标 (string_number, fret_number) 进行定位
-2. WHEN 定位音符标记时，THE Fretboard_Grid SHALL 使用 grid-row 对应弦号
+2. WHEN 定位音符标记时，THE Fretboard_Grid SHALL 使用 grid-row 对应弦号（stringIndex + 2，映射到行2-7）
 3. WHEN 定位音符标记时，THE Fretboard_Grid SHALL 使用 grid-column 对应品格号加一（第1列=品格0）
 4. THE 每个音符标记 SHALL 包裹在一个 Marker_Wrapper 容器中
 5. THE Marker_Wrapper SHALL 填充整个网格单元格，提供完整的交互区域
@@ -71,7 +86,7 @@
 7. THE 音符标记 SHALL 在 Marker_Wrapper 内自动居中对齐
 8. THE Marker_Wrapper SHALL 便于未来添加点击、悬停等交互功能
 
-### Requirement 5: 层级控制系统
+### Requirement 6: 层级控制系统
 
 **User Story:** 作为开发者，我希望通过 CSS 层级控制不同元素的显示顺序，确保正确的视觉层次。
 
@@ -84,7 +99,7 @@
 5. THE 层级系统 SHALL 确保所有元素正确显示且不被遮挡
 6. THE 统一的层级处理 SHALL 适用于所有品格列，包括空弦列
 
-### Requirement 6: 响应式网格适配
+### Requirement 7: 响应式网格适配
 
 **User Story:** 作为用户，我希望在不同设备上都能获得良好的指板显示效果，网格系统应该适应不同屏幕尺寸。
 
@@ -97,7 +112,7 @@
 5. THE 网格间距 SHALL 在小屏幕设备上进行优化调整
 6. THE Marker_Wrapper SHALL 在所有设备上正确填充网格单元格
 
-### Requirement 7: 性能优化
+### Requirement 8: 性能优化
 
 **User Story:** 作为用户，我希望重构后的指板组件具有更好的性能，减少不必要的计算和重渲染。
 
@@ -109,7 +124,7 @@
 4. THE Fretboard_Grid SHALL 使用 CSS 变量优化样式计算
 5. THE Fretboard_Grid SHALL 保持与现有实现相同或更好的渲染性能
 
-### Requirement 8: 向后兼容性
+### Requirement 9: 向后兼容性
 
 **User Story:** 作为开发者，我希望重构后的组件能够与现有的代码和接口保持兼容，不破坏现有功能。
 
@@ -121,7 +136,7 @@
 4. THE Fretboard_Grid SHALL 支持现有的键盘导航功能
 5. THE Fretboard_Grid SHALL 与现有的测试套件兼容
 
-### Requirement 9: 代码简化
+### Requirement 10: 代码简化
 
 **User Story:** 作为开发者，我希望重构后的代码更加简洁易懂，减少复杂的计算逻辑。
 
@@ -135,7 +150,7 @@
 6. THE Fretboard_Grid SHALL 减少组件代码行数至少 30%
 7. THE Fretboard_Grid SHALL 提高代码可读性和维护性
 
-### Requirement 10: 视觉一致性
+### Requirement 11: 视觉一致性
 
 **User Story:** 作为用户，我希望重构后的指板外观与现有实现完全一致，不影响使用体验。
 
