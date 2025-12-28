@@ -5,6 +5,7 @@
  */
 
 import { css } from '@emotion/react';
+import { responsiveGridVariables } from '../../styles/responsive';
 
 // Define GridLayers locally to avoid circular imports
 const GridLayers = {
@@ -13,91 +14,6 @@ const GridLayers = {
   MARKER_WRAPPER: 3,       // 包裹元素 - 第三层
   NOTE_MARKERS: 4,         // 音符标记 - 最顶层（统一处理所有标记）
 } as const;
-
-/**
- * Enhanced CSS custom properties for responsive grid variables
- * Updated with comprehensive responsive breakpoints and improved mobile optimization
- */
-export const responsiveGridVariables = css`
-  /* Desktop default values (1200px+) */
-  --fret-width: 80px;
-  --string-height: 50px;
-  --grid-gap: 2px;
-  --border-radius: 8px;
-  --scrollbar-height: 12px;
-  --marker-size-ratio: 0.64; /* Marker size as ratio of string height */
-  --font-size-ratio: 0.28; /* Font size as ratio of string height */
-
-  /* Large tablet (1024px - 1199px) */
-  @media (max-width: 1199px) {
-    --fret-width: 75px;
-    --string-height: 47px;
-    --grid-gap: 1px;
-    --scrollbar-height: 11px;
-  }
-
-  /* Tablet (768px - 1023px) */
-  @media (max-width: 1023px) {
-    --fret-width: 70px;
-    --string-height: 45px;
-    --grid-gap: 1px;
-    --border-radius: 6px;
-    --scrollbar-height: 10px;
-  }
-
-  /* Small tablet (640px - 767px) */
-  @media (max-width: 767px) {
-    --fret-width: 65px;
-    --string-height: 42px;
-    --grid-gap: 0px;
-    --border-radius: 5px;
-    --scrollbar-height: 9px;
-  }
-
-  /* Mobile (480px - 639px) */
-  @media (max-width: 639px) {
-    --fret-width: 60px;
-    --string-height: 40px;
-    --grid-gap: 0px;
-    --border-radius: 4px;
-    --scrollbar-height: 8px;
-    --marker-size-ratio: 0.68; /* Slightly larger markers on mobile for touch */
-    --font-size-ratio: 0.30;
-  }
-
-  /* Small mobile (360px - 479px) */
-  @media (max-width: 479px) {
-    --fret-width: 55px;
-    --string-height: 38px;
-    --grid-gap: 0px;
-    --border-radius: 3px;
-    --scrollbar-height: 6px;
-    --marker-size-ratio: 0.70; /* Even larger markers for small screens */
-    --font-size-ratio: 0.32;
-  }
-
-  /* Extra small mobile (320px - 359px) */
-  @media (max-width: 359px) {
-    --fret-width: 50px;
-    --string-height: 35px;
-    --grid-gap: 0px;
-    --border-radius: 2px;
-    --scrollbar-height: 5px;
-    --marker-size-ratio: 0.72; /* Maximum marker size for tiny screens */
-    --font-size-ratio: 0.34;
-  }
-
-  /* Ultra-wide screens (2560px+) - prevent excessive scaling */
-  @media (min-width: 2560px) {
-    --fret-width: 100px;
-    --string-height: 60px;
-    --grid-gap: 3px;
-    --border-radius: 12px;
-    --scrollbar-height: 16px;
-    --marker-size-ratio: 0.60; /* Smaller ratio for large screens */
-    --font-size-ratio: 0.26;
-  }
-`;
 
 /**
  * Main fretboard grid container styles with enhanced CSS Grid layout
@@ -298,6 +214,7 @@ export const markerWrapperStyles = css`
 
 /**
  * Enhanced base note marker styles with optimized responsive design
+ * Focuses on sizing and positioning, visual appearance handled by shared styles
  */
 export const baseNoteMarkerStyles = css`
   justify-self: center;
@@ -306,15 +223,7 @@ export const baseNoteMarkerStyles = css`
   /* Enhanced size calculation using CSS variables with responsive ratios */
   width: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
   height: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
   font-size: calc(var(--string-height) * var(--font-size-ratio, 0.28));
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
   /* Minimum usable size for accessibility */
   min-width: 20px;

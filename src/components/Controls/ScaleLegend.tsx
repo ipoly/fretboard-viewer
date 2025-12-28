@@ -1,8 +1,8 @@
 import React from 'react'
 import { css } from '@emotion/react'
-import { SCALE_DEGREE_COLORS } from '../../utils/constants/music'
 import { calculateMajorScale } from '../../utils/music/scales'
 import { useAppStore } from '../../stores/appStore'
+import { circularMarkerBase, getScaleDegreeColorClass } from '../../styles/shared'
 
 const legendStyles = css`
   display: flex;
@@ -42,19 +42,12 @@ const legendItemStyles = css`
 `
 
 const legendCircleStyles = css`
+  ${circularMarkerBase}
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 11px;
   font-weight: 900;
   font-family: 'Comic Sans MS', 'Marker Felt', 'Chalkduster', cursive, sans-serif;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 
   /* Touch-friendly sizing */
   @media (max-width: 768px) {
@@ -92,15 +85,14 @@ export const ScaleLegend: React.FC = () => {
       <div css={legendItemsStyles} role="list" aria-label="Scale degrees and notes">
         {scaleInfo.degrees.map((degree, index) => {
           const note = scaleInfo.notes[index]
-          const color = SCALE_DEGREE_COLORS[degree as keyof typeof SCALE_DEGREE_COLORS]
+          const colorClass = getScaleDegreeColorClass(degree)
           const displayText = displayMode === 'notes' ? note : degree.toString()
 
           return (
             <div key={degree} css={legendItemStyles} role="listitem">
               <div
-                css={legendCircleStyles}
-                style={{ backgroundColor: color }}
-                aria-label={`${displayMode === 'notes' ? note : `Degree ${degree}`} (${color})`}
+                css={[legendCircleStyles, colorClass]}
+                aria-label={`${displayMode === 'notes' ? note : `Degree ${degree}`}`}
               >
                 {displayText}
               </div>
