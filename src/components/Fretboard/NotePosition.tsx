@@ -18,54 +18,119 @@ function getColorForScaleDegree(degree: number): string {
 // Grid positioning is now handled by MarkerWrapper component
 
 /**
- * Note marker base styles using CSS variables for responsive design
+ * Enhanced note marker base styles using CSS variables for responsive design
  * No longer handles grid positioning - that's handled by MarkerWrapper
  */
 const noteMarkerBaseStyles = css`
-  /* Size calculation using CSS variables */
-  width: calc(var(--string-height) * 0.64);
-  height: calc(var(--string-height) * 0.64);
+  /* Size calculation using CSS variables with responsive ratios */
+  width: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
+  height: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: calc(var(--string-height) * 0.28);
+  font-size: calc(var(--string-height) * var(--font-size-ratio, 0.28));
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
-  /* Minimum usable size */
+  /* Minimum usable size for accessibility */
   min-width: 20px;
   min-height: 20px;
 
-  /* Responsive size adjustments */
-  @media (max-width: 1024px) {
+  /* Responsive size adjustments with fallback values */
+  @media (max-width: 1199px) {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 1023px) {
     width: 30px;
     height: 30px;
     font-size: 13px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     width: 28px;
     height: 28px;
     font-size: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   }
 
-  @media (max-width: 480px) {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-    min-width: 24px;
-    min-height: 24px;
+  @media (max-width: 639px) {
+    width: 27px;
+    height: 27px;
+    font-size: 12px;
+    min-width: 27px;
+    min-height: 27px;
   }
 
-  /* Touch device optimization */
+  @media (max-width: 479px) {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    min-width: 26px;
+    min-height: 26px;
+  }
+
+  @media (max-width: 359px) {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    min-width: 25px;
+    min-height: 25px;
+    font-weight: 600;
+  }
+
+  /* Enhanced touch device optimization */
   @media (hover: none) and (pointer: coarse) {
+    /* Ensure minimum touch target size */
     min-width: 28px;
     min-height: 28px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+
+    /* Better touch feedback */
+    &:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  /* Ultra-wide screen optimization */
+  @media (min-width: 2560px) {
+    width: calc(var(--string-height) * 0.60);
+    height: calc(var(--string-height) * 0.60);
+    font-size: calc(var(--string-height) * 0.26);
+    max-width: 48px;
+    max-height: 48px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    border: 2px solid currentColor;
+    text-shadow: none;
+    font-weight: bold;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    &:active {
+      transform: none;
+    }
+  }
+
+  /* Focus styles for keyboard navigation */
+  &:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+
+    @media (max-width: 767px) {
+      outline-width: 1px;
+      outline-offset: 1px;
+    }
   }
 `
 

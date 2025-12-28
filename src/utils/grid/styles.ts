@@ -16,18 +16,28 @@ const GridLayers = {
 
 /**
  * Enhanced CSS custom properties for responsive grid variables
- * Updated with comprehensive responsive breakpoints matching design specifications
+ * Updated with comprehensive responsive breakpoints and improved mobile optimization
  */
 export const responsiveGridVariables = css`
-  /* Desktop default values */
+  /* Desktop default values (1200px+) */
   --fret-width: 80px;
   --string-height: 50px;
   --grid-gap: 2px;
   --border-radius: 8px;
   --scrollbar-height: 12px;
+  --marker-size-ratio: 0.64; /* Marker size as ratio of string height */
+  --font-size-ratio: 0.28; /* Font size as ratio of string height */
 
-  /* Tablet (1024px and below) */
-  @media (max-width: 1024px) {
+  /* Large tablet (1024px - 1199px) */
+  @media (max-width: 1199px) {
+    --fret-width: 75px;
+    --string-height: 47px;
+    --grid-gap: 1px;
+    --scrollbar-height: 11px;
+  }
+
+  /* Tablet (768px - 1023px) */
+  @media (max-width: 1023px) {
     --fret-width: 70px;
     --string-height: 45px;
     --grid-gap: 1px;
@@ -35,22 +45,57 @@ export const responsiveGridVariables = css`
     --scrollbar-height: 10px;
   }
 
-  /* Mobile (768px and below) */
-  @media (max-width: 768px) {
+  /* Small tablet (640px - 767px) */
+  @media (max-width: 767px) {
+    --fret-width: 65px;
+    --string-height: 42px;
+    --grid-gap: 0px;
+    --border-radius: 5px;
+    --scrollbar-height: 9px;
+  }
+
+  /* Mobile (480px - 639px) */
+  @media (max-width: 639px) {
     --fret-width: 60px;
     --string-height: 40px;
     --grid-gap: 0px;
     --border-radius: 4px;
     --scrollbar-height: 8px;
+    --marker-size-ratio: 0.68; /* Slightly larger markers on mobile for touch */
+    --font-size-ratio: 0.30;
   }
 
-  /* Small mobile (480px and below) */
-  @media (max-width: 480px) {
-    --fret-width: 50px;
-    --string-height: 35px;
+  /* Small mobile (360px - 479px) */
+  @media (max-width: 479px) {
+    --fret-width: 55px;
+    --string-height: 38px;
     --grid-gap: 0px;
     --border-radius: 3px;
     --scrollbar-height: 6px;
+    --marker-size-ratio: 0.70; /* Even larger markers for small screens */
+    --font-size-ratio: 0.32;
+  }
+
+  /* Extra small mobile (320px - 359px) */
+  @media (max-width: 359px) {
+    --fret-width: 50px;
+    --string-height: 35px;
+    --grid-gap: 0px;
+    --border-radius: 2px;
+    --scrollbar-height: 5px;
+    --marker-size-ratio: 0.72; /* Maximum marker size for tiny screens */
+    --font-size-ratio: 0.34;
+  }
+
+  /* Ultra-wide screens (2560px+) - prevent excessive scaling */
+  @media (min-width: 2560px) {
+    --fret-width: 100px;
+    --string-height: 60px;
+    --grid-gap: 3px;
+    --border-radius: 12px;
+    --scrollbar-height: 16px;
+    --marker-size-ratio: 0.60; /* Smaller ratio for large screens */
+    --font-size-ratio: 0.26;
   }
 `;
 
@@ -252,56 +297,120 @@ export const markerWrapperStyles = css`
 `;
 
 /**
- * Base note marker styles with optimized responsive design
+ * Enhanced base note marker styles with optimized responsive design
  */
 export const baseNoteMarkerStyles = css`
   justify-self: center;
   align-self: center;
 
-  /* Optimized size calculation using CSS variables */
-  width: calc(var(--string-height) * 0.64);
-  height: calc(var(--string-height) * 0.64);
+  /* Enhanced size calculation using CSS variables with responsive ratios */
+  width: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
+  height: calc(var(--string-height) * var(--marker-size-ratio, 0.64));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: calc(var(--string-height) * 0.28);
+  font-size: calc(var(--string-height) * var(--font-size-ratio, 0.28));
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
-  /* Minimum usable size */
+  /* Minimum usable size for accessibility */
   min-width: 20px;
   min-height: 20px;
 
-  /* Simplified responsive size adjustments */
-  @media (max-width: 1024px) {
+  /* Comprehensive responsive size adjustments with fallback values */
+  @media (max-width: 1199px) {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 1023px) {
     width: 30px;
     height: 30px;
     font-size: 13px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     width: 28px;
     height: 28px;
     font-size: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   }
 
-  @media (max-width: 480px) {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-    min-width: 24px;
-    min-height: 24px;
+  @media (max-width: 639px) {
+    width: 27px;
+    height: 27px;
+    font-size: 12px;
+    min-width: 27px;
+    min-height: 27px;
   }
 
-  /* Touch device optimization */
+  @media (max-width: 479px) {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    min-width: 26px;
+    min-height: 26px;
+  }
+
+  @media (max-width: 359px) {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    min-width: 25px;
+    min-height: 25px;
+    font-weight: 600;
+  }
+
+  /* Enhanced touch device optimization */
   @media (hover: none) and (pointer: coarse) {
     min-width: 28px;
     min-height: 28px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+
+    /* Better touch feedback */
+    &:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  /* Ultra-wide screen optimization */
+  @media (min-width: 2560px) {
+    width: calc(var(--string-height) * 0.60);
+    height: calc(var(--string-height) * 0.60);
+    font-size: calc(var(--string-height) * 0.26);
+    max-width: 48px;
+    max-height: 48px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    border: 2px solid currentColor;
+    text-shadow: none;
+    font-weight: bold;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    &:active {
+      transform: none;
+    }
+  }
+
+  /* Focus styles for keyboard navigation */
+  &:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+
+    @media (max-width: 767px) {
+      outline-width: 1px;
+      outline-offset: 1px;
+    }
   }
 `;
 

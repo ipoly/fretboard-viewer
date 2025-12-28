@@ -25,7 +25,8 @@ function fretToGridColumn(fretNumber: number): number {
 }
 
 /**
- * Marker wrapper styles - invisible container that fills entire grid cell
+ * Enhanced marker wrapper styles - invisible container that fills entire grid cell
+ * with improved responsive design and touch optimization
  */
 const markerWrapperStyles = css`
   /* Grid positioning */
@@ -33,9 +34,11 @@ const markerWrapperStyles = css`
   grid-row: var(--string-row);
   z-index: 3; /* GridLayers.MARKER_WRAPPER - above strings and frets */
 
-  /* Fill entire grid cell */
+  /* Fill entire grid cell - critical for proper interaction area */
   width: 100%;
   height: 100%;
+  min-width: 0; /* Prevent overflow on small screens */
+  min-height: 0;
 
   /* Center the note marker within the wrapper */
   display: flex;
@@ -59,6 +62,13 @@ const markerWrapperStyles = css`
     outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: 2px;
     border-radius: 4px;
+
+    /* Responsive outline adjustments */
+    @media (max-width: 767px) {
+      outline-width: 1px;
+      outline-offset: 1px;
+      border-radius: 2px;
+    }
   }
 
   /* Future interaction support - hover state preparation */
@@ -66,11 +76,47 @@ const markerWrapperStyles = css`
     /* Placeholder for future hover interactions */
   }
 
-  /* Touch device optimization */
+  /* Enhanced touch device optimization */
   @media (hover: none) and (pointer: coarse) {
-    /* Ensure adequate touch target size */
+    /* Ensure adequate touch target size while maintaining grid cell filling */
+    min-width: calc(var(--fret-width) * 0.8);
+    min-height: calc(var(--string-height) * 0.8);
+
+    /* Ensure wrapper still fills the cell completely */
+    width: 100%;
+    height: 100%;
+
+    /* Add subtle touch feedback area */
+    &:active {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+  }
+
+  /* Extra small screen optimizations */
+  @media (max-width: 359px) {
+    /* Maintain minimum touch target while filling grid cell */
     min-width: 44px;
-    min-height: 44px;
+    min-height: 32px;
+
+    /* Ensure complete cell filling */
+    width: 100%;
+    height: 100%;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    &:focus-within {
+      outline: 2px solid currentColor;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    &:focus-within {
+      transition: none;
+    }
   }
 `
 
