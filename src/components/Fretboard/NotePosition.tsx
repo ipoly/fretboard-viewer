@@ -15,29 +15,13 @@ function getColorForScaleDegree(degree: number): string {
   return SCALE_DEGREE_COLORS[degree as keyof typeof SCALE_DEGREE_COLORS] || '#999999'
 }
 
-/**
- * Convert string index to grid row position
- * 8-row system: string 0 -> row 2, string 1 -> row 3, etc. (row 1 is top placeholder, row 8 is bottom placeholder)
- */
-function stringToGridRow(stringIndex: number): number {
-  return stringIndex + 2 // 0-based string index -> 1-based grid row + 1 for top placeholder row
-}
-
-/**
- * Convert fret number to grid column position
- * Simple 1-based grid system: fret 0 -> column 1, fret 1 -> column 2, etc.
- */
-function fretToGridColumn(fretNumber: number): number {
-  return fretNumber + 1
-}
+// Grid positioning is now handled by MarkerWrapper component
 
 /**
  * Note marker base styles using CSS variables for responsive design
+ * No longer handles grid positioning - that's handled by MarkerWrapper
  */
 const noteMarkerBaseStyles = css`
-  justify-self: center;
-  align-self: center;
-
   /* Size calculation using CSS variables */
   width: calc(var(--string-height) * 0.64);
   height: calc(var(--string-height) * 0.64);
@@ -87,21 +71,20 @@ const noteMarkerBaseStyles = css`
 
 /**
  * Regular note marker styles (for fretted notes)
+ * Grid positioning is now handled by MarkerWrapper
  */
 const regularNoteMarkerStyles = css`
   ${noteMarkerBaseStyles}
-  z-index: 4; /* Note markers layer */
+  z-index: 4; /* Note markers layer - highest within wrapper */
 `
 
 /**
- * Open string marker styles (with sticky positioning)
+ * Open string marker styles
+ * Grid positioning is now handled by MarkerWrapper
  */
 const openStringMarkerStyles = css`
   ${noteMarkerBaseStyles}
-  grid-column: 1; /* Always in first column */
-  position: sticky;
-  left: 0;
-  z-index: 6; /* Open string markers - highest layer */
+  z-index: 4; /* Note markers layer - same as regular markers within wrapper */
 `
 
 const NotePosition: React.FC<NotePositionProps> = React.memo(({
@@ -125,10 +108,6 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
   // Determine if this is an open string marker
   const isOpenString = fret === 0
 
-  // Calculate grid coordinates using simple mapping functions
-  const gridRow = stringToGridRow(string) // string 0 -> row 1, string 1 -> row 2, etc.
-  const gridColumn = fretToGridColumn(fret) // fret 0 -> column 1, fret 1 -> column 2, etc.
-
   // Memoize keyboard handler
   const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -142,8 +121,6 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
       css={isOpenString ? openStringMarkerStyles : regularNoteMarkerStyles}
       className={isOpenString ? 'open-string-marker' : 'note-marker'}
       style={{
-        gridRow,
-        gridColumn: isOpenString ? undefined : gridColumn, // Open string uses CSS grid-column: 1
         backgroundColor
       } as React.CSSProperties}
       data-string={string}

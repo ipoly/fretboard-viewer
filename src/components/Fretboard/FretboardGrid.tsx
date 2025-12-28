@@ -3,7 +3,7 @@ import { css } from '@emotion/react'
 import { MusicalKey, DisplayMode } from '../../types'
 import { getFretboardPositions } from '../../utils/music/fretboard'
 import { STANDARD_TUNING } from '../../utils/constants/music'
-import NotePosition from './NotePosition'
+import MarkerWrapper from './MarkerWrapper'
 
 interface FretboardGridProps {
   selectedKey: MusicalKey
@@ -271,9 +271,9 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
           />
         ))}
 
-        {/* Note markers */}
+        {/* Note markers with wrapper elements */}
         {fretPositions.map(position => (
-          <NotePosition
+          <MarkerWrapper
             key={`note-${position.string}-${position.fret}`}
             position={position}
             displayMode={displayMode}

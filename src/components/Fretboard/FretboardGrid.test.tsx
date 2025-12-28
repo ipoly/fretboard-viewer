@@ -492,4 +492,48 @@ describe('FretboardGrid Display Consistency - Unit Tests', () => {
       expect(computedStyle.display).toBe('grid')
     })
   })
+
+  it('should implement wrapper element system correctly', () => {
+    const { container } = render(
+      <FretboardGrid
+        selectedKey="C"
+        displayMode="notes"
+        fretCount={12}
+      />
+    )
+
+    // Verify wrapper elements exist
+    const wrapperElements = container.querySelectorAll('.marker-wrapper')
+    expect(wrapperElements.length).toBeGreaterThan(0)
+
+    // Verify each wrapper contains a note marker
+    wrapperElements.forEach(wrapper => {
+      const noteMarker = wrapper.querySelector('.note-marker, .open-string-marker')
+      expect(noteMarker).toBeInTheDocument()
+
+      // Verify wrapper has correct grid positioning attributes
+      expect(wrapper).toHaveAttribute('data-string')
+      expect(wrapper).toHaveAttribute('data-fret')
+
+      // Verify wrapper has gridcell role for accessibility
+      expect(wrapper).toHaveAttribute('role', 'gridcell')
+
+      // Verify wrapper has CSS variables for positioning
+      const wrapperElement = wrapper as HTMLElement
+      const stringRow = wrapperElement.style.getPropertyValue('--string-row')
+      const noteColumn = wrapperElement.style.getPropertyValue('--note-column')
+
+      expect(stringRow).toBeTruthy()
+      expect(noteColumn).toBeTruthy()
+    })
+
+    // Verify note markers are centered within wrappers (no grid positioning on markers themselves)
+    const noteMarkers = container.querySelectorAll('.note-marker, .open-string-marker')
+    noteMarkers.forEach(marker => {
+      const markerElement = marker as HTMLElement
+      // Note markers should not have grid positioning styles since that's handled by wrapper
+      expect(markerElement.style.gridRow).toBeFalsy()
+      expect(markerElement.style.gridColumn).toBeFalsy()
+    })
+  })
 })
