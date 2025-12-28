@@ -4,6 +4,7 @@ import { MusicalKey, DisplayMode } from '../../types'
 import { getFretboardPositions } from '../../utils/music/fretboard'
 import { STANDARD_TUNING } from '../../utils/constants/music'
 import MarkerWrapper from './MarkerWrapper'
+import { useLayerManagement } from '../../utils/grid/useLayerManagement'
 
 interface FretboardGridProps {
   selectedKey: MusicalKey
@@ -95,7 +96,7 @@ const fretboardGridStyles = css`
 // Fret line styles
 const fretLineStyles = css`
   grid-row: 2 / 8; /* Span from row 2 (first string) to row 7 (last string) + 1 */
-  z-index: 1;
+  z-index: 1; /* GridLayers.FRET_LINES */
 
   width: 3px;
   height: 100%; /* 确保品格线有明确的高度 */
@@ -151,7 +152,7 @@ const fretLineStyles = css`
 // String line styles
 const stringLineStyles = css`
   grid-column: 1 / -1; /* Span from first column to end */
-  z-index: 2;
+  z-index: 2; /* GridLayers.STRING_LINES */
 
   height: var(--string-thickness);
   background: var(--string-gradient);
@@ -199,6 +200,19 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
 
   // Get all fret positions for the selected key
   const fretPositions = React.useMemo(() => getFretboardPositions(selectedKey, fretCount), [selectedKey, fretCount])
+
+  // Layer management system - ensures proper z-index ordering (development only)
+  const { checkLayerIntegrity } = useLayerManagement(fretboardRef, false) // Disabled during tests
+
+  // Development-time layer validation
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && fretboardRef.current) {
+      const integrity = checkLayerIntegrity()
+      if (!integrity.isValid) {
+        console.warn('Fretboard layer integrity issues:', integrity.issues)
+      }
+    }
+  }, [checkLayerIntegrity])
 
   // Keyboard navigation with CSS variable-based scroll calculation
   const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
@@ -254,6 +268,7 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
             css={fretLineStyles}
             style={{ gridColumn: fret + 1 } as React.CSSProperties} // Unified mapping: fret 0 = column 1, fret 1 = column 2, etc.
             data-fret-number={fret}
+            data-layer="fret-lines"
             role="presentation"
             aria-hidden="true"
           />
@@ -265,6 +280,7 @@ const FretboardGrid: React.FC<FretboardGridProps> = ({
             key={`string-${stringIndex}`}
             css={stringLineStyles}
             data-string={stringIndex}
+            data-layer="string-lines"
             style={{ gridRow: stringIndex + 2 } as React.CSSProperties} /* Unified mapping: stringIndex + 2 for 8-row system with placeholder rows */
             role="presentation"
             aria-hidden="true"

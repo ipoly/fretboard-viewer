@@ -78,7 +78,7 @@ const noteMarkerBaseStyles = css`
  */
 const noteMarkerStyles = css`
   ${noteMarkerBaseStyles}
-  z-index: 4; /* Note markers layer - highest within wrapper */
+  z-index: 4; /* GridLayers.NOTE_MARKERS - highest layer within wrapper */
 `
 
 const NotePosition: React.FC<NotePositionProps> = React.memo(({
@@ -121,6 +121,7 @@ const NotePosition: React.FC<NotePositionProps> = React.memo(({
       data-fret={fret}
       data-scale-degree={scaleDegree}
       data-note={note}
+      data-layer="note-markers"
       data-is-open-string={isOpenString} // Data attribute for styling/testing if needed
       role="button"
       tabIndex={0}

@@ -31,7 +31,7 @@ const markerWrapperStyles = css`
   /* Grid positioning */
   grid-column: var(--note-column);
   grid-row: var(--string-row);
-  z-index: 3; /* Marker wrapper layer - above strings and frets */
+  z-index: 3; /* GridLayers.MARKER_WRAPPER - above strings and frets */
 
   /* Fill entire grid cell */
   width: 100%;
@@ -97,6 +97,7 @@ const MarkerWrapper: React.FC<MarkerWrapperProps> = React.memo(({
       className="marker-wrapper"
       data-string={string}
       data-fret={fret}
+      data-layer="marker-wrapper"
       style={{
         '--string-row': gridRow,
         '--note-column': gridColumn
